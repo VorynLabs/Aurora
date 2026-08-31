@@ -1,0 +1,5 @@
+<%# Use com bloco: render(layout: "ui/card") { ... }
+    locals: extra (classes adicionais, opcional) %>
+<div class="<%= ui_card_classes(extra: local_assigns[:extra]) %>">
+  <%= yield %>
+</div>

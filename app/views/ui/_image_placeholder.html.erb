@@ -1,0 +1,11 @@
+<%# Fundo do produto sem imagem. nude-deep existe para isto.
+    locals: extra (classes adicionais, opcional) %>
+<div class="flex items-center justify-center bg-nude-deep <%= local_assigns[:extra] %>"
+     role="img" aria-label="Produto sem imagem">
+  <svg class="h-8 w-8 text-clay-text" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+    <rect x="3" y="4" width="18" height="16" rx="2" />
+    <circle cx="8.5" cy="9.5" r="1.5" />
+    <path d="M4 17l5-5 4 4 3-3 4 4" stroke-linecap="round" stroke-linejoin="round" />
+  </svg>
+</div>

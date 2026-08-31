@@ -1,0 +1,19 @@
+<%# Use com bloco: cada item do menu é um link_to/button_to do bloco.
+    locals: label (texto acessível do gatilho) %>
+<div class="relative" data-controller="dropdown"
+     data-action="keydown.esc->dropdown#closeOnEscape">
+  <button type="button" data-dropdown-target="button" data-action="dropdown#toggle"
+          aria-haspopup="true" aria-expanded="false" aria-label="<%= label %>"
+          class="inline-flex h-11 w-11 items-center justify-center rounded-control text-clay-text hover:bg-nude">
+    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <circle cx="12" cy="5" r="1.75" />
+      <circle cx="12" cy="12" r="1.75" />
+      <circle cx="12" cy="19" r="1.75" />
+    </svg>
+  </button>
+
+  <div data-dropdown-target="menu" hidden role="menu"
+       class="absolute right-0 z-10 mt-1 w-52 overflow-hidden rounded-card border border-nude-deep bg-white py-1 shadow-lg">
+    <%= yield %>
+  </div>
+</div>

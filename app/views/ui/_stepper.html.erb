@@ -1,0 +1,25 @@
+<%# Seletor de quantidade. O max vem do estoque disponível da variação.
+    locals: name, value (padrão 1), min (padrão 1), max %>
+<div class="inline-flex items-center rounded-control border border-nude-deep bg-white"
+     data-controller="stepper"
+     data-stepper-min-value="<%= local_assigns.fetch(:min, 1) %>"
+     data-stepper-max-value="<%= max %>">
+  <button type="button" data-stepper-target="decrement" data-action="stepper#decrement"
+          aria-label="Diminuir quantidade"
+          class="inline-flex h-11 w-11 items-center justify-center text-wine disabled:opacity-40">
+    &minus;
+  </button>
+
+  <input type="number" name="<%= name %>" value="<%= local_assigns.fetch(:value, 1) %>"
+         min="<%= local_assigns.fetch(:min, 1) %>" max="<%= max %>"
+         inputmode="numeric" aria-label="Quantidade"
+         data-stepper-target="input" data-action="change->stepper#clamp"
+         class="h-11 w-12 border-x border-nude-deep text-center text-sm text-wine-ink
+                [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none">
+
+  <button type="button" data-stepper-target="increment" data-action="stepper#increment"
+          aria-label="Aumentar quantidade"
+          class="inline-flex h-11 w-11 items-center justify-center text-wine disabled:opacity-40">
+    +
+  </button>
+</div>

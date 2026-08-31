@@ -1,0 +1,4 @@
+<%# locals: label (String), tone (:neutral, :success, :warning, :danger, :accent) %>
+<span class="<%= ui_badge_classes(tone: local_assigns.fetch(:tone, :neutral)) %>">
+  <%= label %>
+</span>

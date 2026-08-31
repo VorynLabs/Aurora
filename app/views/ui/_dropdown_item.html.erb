@@ -1,0 +1,11 @@
+<%# locals: label, url, method (opcional), tone (:default ou :danger), confirm (opcional) %>
+<% tone = local_assigns.fetch(:tone, :default) %>
+<% classes = "flex min-h-11 w-full items-center px-4 text-sm hover:bg-nude " \
+             "#{tone == :danger ? 'text-danger' : 'text-wine-ink'}" %>
+
+<% if local_assigns[:method].present? %>
+  <%= button_to label, url, method: method, role: "menuitem", class: classes,
+        form: { data: { turbo_confirm: local_assigns[:confirm] }.compact } %>
+<% else %>
+  <%= link_to label, url, role: "menuitem", class: classes %>
+<% end %>
