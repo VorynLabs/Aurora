@@ -29,6 +29,9 @@ gem "tailwindcss-rails"
 # Database-backed Active Job backend [https://github.com/rails/solid_queue]
 gem "solid_queue", "~> 1.1"
 
+# Authentication for the admin panel [https://github.com/heartcombo/devise]
+gem "devise", "~> 4.9"
+
 # Use Redis adapter to run Action Cable in production
 # gem "redis", ">= 4.0.1"
 
