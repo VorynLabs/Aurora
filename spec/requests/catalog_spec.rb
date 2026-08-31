@@ -127,6 +127,77 @@ RSpec.describe "Catálogo público", type: :request do
     end
   end
 
+  describe "busca" do
+    before do
+      create(:product, title: "Camisola de cetim", description: "Alça fina")
+      create(:product, title: "Cinta-liga", description: "Renda francesa")
+    end
+
+    it "casa pelo título, ignorando maiúsculas" do
+      get root_path(q: "camisola")
+
+      expect(response.body).to include("Camisola de cetim")
+      expect(response.body).not_to include("Cinta-liga")
+    end
+
+    it "casa pela descrição" do
+      get root_path(q: "renda")
+
+      expect(response.body).to include("Cinta-liga")
+      expect(response.body).not_to include("Camisola de cetim")
+    end
+
+    it "casa por pedaço de palavra" do
+      get root_path(q: "misol")
+
+      expect(response.body).to include("Camisola de cetim")
+    end
+
+    it "não vaza produto que a regra de visibilidade esconde" do
+      create(:product, title: "Camisola oculta", hidden_by_admin: true)
+      create(:product, title: "Camisola zerada", variant_quantity: 0)
+
+      get root_path(q: "camisola")
+
+      expect(response.body).to include("Camisola de cetim")
+      expect(response.body).not_to include("Camisola oculta", "Camisola zerada")
+    end
+
+    it "trata % como texto, não como curinga" do
+      create(:product, title: "Camisola 100% seda")
+
+      get root_path(q: "%")
+
+      expect(response.body).to include("Camisola 100% seda")
+      expect(response.body).not_to include("Cinta-liga")
+    end
+
+    it "trata _ como texto, não como curinga" do
+      create(:product, title: "Kit_promocional")
+
+      get root_path(q: "_")
+
+      expect(response.body).to include("Kit_promocional")
+      expect(response.body).not_to include("Cinta-liga")
+    end
+
+    it "combina com o filtro de categoria" do
+      renda = create(:category, name: "Rendas")
+      create(:product, title: "Camisola de renda", category: renda)
+
+      get root_path(q: "camisola", category_id: renda.id)
+
+      expect(response.body).to include("Camisola de renda")
+      expect(response.body).not_to include("Camisola de cetim")
+    end
+
+    it "avisa quando a busca não encontra nada" do
+      get root_path(q: "guarda-chuva")
+
+      expect(response.body).to include("Nada encontrado para")
+    end
+  end
+
   it "convida a voltar quando não há nada visível" do
     get root_path
 

@@ -23,6 +23,41 @@ RSpec.describe "Catálogo", type: :system do
     expect(page.evaluate_script("window.semReload")).to be(true)
   end
 
+  it "busca conforme o cliente digita, sem recarregar a página" do
+    visit root_path
+
+    page.execute_script("window.semReload = true")
+
+    fill_in "Buscar produtos", with: "camisola"
+
+    expect(page).to have_content("Camisola de cetim")
+    expect(page).to have_no_content("Cinta-liga")
+    expect(page.evaluate_script("window.semReload")).to be(true)
+  end
+
+  it "mantém o cursor no campo de busca enquanto os resultados trocam" do
+    visit root_path
+
+    fill_in "Buscar produtos", with: "cinta"
+
+    expect(page).to have_no_content("Camisola de cetim")
+    expect(page.evaluate_script("document.activeElement.id")).to eq("catalog-search")
+  end
+
+  it "mantém a busca ao trocar de categoria" do
+    create(:product, title: "Camisola de renda", category: acessorios)
+    visit root_path
+
+    fill_in "Buscar produtos", with: "camisola"
+
+    expect(page).to have_content("Camisola de cetim")
+
+    click_link "Acessórios"
+
+    expect(page).to have_content("Camisola de renda")
+    expect(page).to have_no_content("Camisola de cetim")
+  end
+
   it "marca a categoria ativa e volta com Todos" do
     visit root_path
 
