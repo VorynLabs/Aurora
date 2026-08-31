@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_08_31_042133) do
+ActiveRecord::Schema[7.1].define(version: 2026_08_31_042306) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -56,6 +56,33 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_31_042133) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["slug"], name: "index_categories_on_slug", unique: true
+  end
+
+  create_table "order_items", force: :cascade do |t|
+    t.bigint "order_id", null: false
+    t.bigint "variant_id", null: false
+    t.integer "quantity", null: false
+    t.integer "price_cents", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["order_id", "variant_id"], name: "index_order_items_on_order_id_and_variant_id", unique: true
+    t.index ["order_id"], name: "index_order_items_on_order_id"
+    t.index ["variant_id"], name: "index_order_items_on_variant_id"
+  end
+
+  create_table "orders", force: :cascade do |t|
+    t.string "order_nsu", null: false
+    t.integer "status", default: 0, null: false
+    t.integer "total_cents", default: 0, null: false
+    t.string "currency", default: "BRL", null: false
+    t.string "payment_link_url"
+    t.string "transaction_id"
+    t.datetime "reserved_until"
+    t.datetime "paid_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["order_nsu"], name: "index_orders_on_order_nsu", unique: true
+    t.index ["status"], name: "index_orders_on_status"
   end
 
   create_table "products", force: :cascade do |t|
@@ -236,8 +263,22 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_31_042133) do
     t.index ["sku"], name: "index_variants_on_sku", unique: true, where: "(sku IS NOT NULL)"
   end
 
+  create_table "webhook_events", force: :cascade do |t|
+    t.string "provider", default: "infinitepay", null: false
+    t.string "event_id", null: false
+    t.string "order_nsu"
+    t.integer "status", default: 0, null: false
+    t.jsonb "payload", default: {}, null: false
+    t.datetime "processed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["provider", "event_id"], name: "index_webhook_events_on_provider_and_event_id", unique: true
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "order_items", "orders"
+  add_foreign_key "order_items", "variants"
   add_foreign_key "products", "admins"
   add_foreign_key "products", "categories"
   add_foreign_key "solid_queue_batch_executions", "solid_queue_batches", column: "batch_id", on_delete: :cascade
