@@ -10,8 +10,9 @@
 
     <%= form_with url: root_path, method: :get, role: "search",
           class: "order-last w-full sm:order-none sm:ml-auto sm:w-64",
-          data: { turbo_frame: search_frame, controller: "search",
-                  action: "input->search#submit" } do %>
+          data: { turbo_frame: search_frame, controller: "auto-submit",
+                  auto_submit_delay_value: 300,
+                  action: "input->auto-submit#submit" } do %>
       <label for="catalog-search" class="sr-only">Buscar produtos</label>
       <%= search_field_tag :q, params[:q], id: "catalog-search",
             placeholder: "Buscar produtos...", autocomplete: "off",

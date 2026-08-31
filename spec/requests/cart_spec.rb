@@ -56,6 +56,66 @@ RSpec.describe "Carrinho", type: :request do
     end
   end
 
+  describe "PATCH /cart/items/:id" do
+    before { post cart_items_path, params: { variant_id: variant.id, quantity: 5 } }
+
+    it "troca a quantidade em vez de somar" do
+      patch cart_item_path(variant), params: { quantity: 2 }
+
+      get cart_path
+      expect(response.body).to include("(2 × R$ 49,90)")
+    end
+
+    it "tira o item quando a quantidade vai a zero" do
+      patch cart_item_path(variant), params: { quantity: 0 }
+
+      get cart_path
+      expect(response.body).to include("Seu carrinho está vazio")
+    end
+
+    it "redesenha cabeçalho e página por turbo_stream" do
+      patch cart_item_path(variant), params: { quantity: 2 }, headers: turbo
+
+      expect(response.body).to include('action="replace" target="mini_cart"')
+      expect(response.body).to include('action="replace" target="cart_body"')
+      expect(response.body).to include('data-cart-count="2"')
+    end
+  end
+
+  describe "DELETE /cart/items/:id" do
+    it "tira a linha do carrinho" do
+      post cart_items_path, params: { variant_id: variant.id, quantity: 2 }
+
+      delete cart_item_path(variant)
+
+      get cart_path
+      expect(response.body).to include("Seu carrinho está vazio")
+    end
+
+    it "deixa as outras linhas de pé" do
+      # Títulos distintos: a fábrica de produto usa o mesmo para todos.
+      removida = create(:variant, quantity: 4, product: create(:product, title: "Camisola de cetim"))
+      mantida = create(:variant, quantity: 4, product: create(:product, title: "Cinta-liga"))
+      post cart_items_path, params: { variant_id: removida.id, quantity: 1 }
+      post cart_items_path, params: { variant_id: mantida.id, quantity: 1 }
+
+      delete cart_item_path(removida)
+
+      get cart_path
+      expect(response.body).to include("Cinta-liga")
+      expect(response.body).not_to include("Camisola de cetim")
+    end
+  end
+
+  it "avisa quando um item do carrinho ficou sem estoque" do
+    post cart_items_path, params: { variant_id: variant.id, quantity: 2 }
+    variant.update!(quantity: 0)
+
+    get cart_path
+
+    expect(response.body).to include("ficou sem estoque")
+  end
+
   it "mostra o contador do cabeçalho em todas as telas públicas" do
     post cart_items_path, params: { variant_id: variant.id, quantity: 3 }
 

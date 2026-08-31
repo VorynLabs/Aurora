@@ -22,5 +22,22 @@
         (<%= line[:quantity] %> × <%= variant.price_brl %>)
       </span>
     </p>
+
+    <div class="mt-3 flex flex-wrap items-center gap-3">
+      <% if variant.available_stock.positive? %>
+        <%= form_with url: cart_item_path(variant), method: :patch,
+              data: { controller: "auto-submit", action: "change->auto-submit#submit" } do %>
+          <%= render "ui/stepper", name: "quantity", value: line[:quantity],
+                max: variant.available_stock %>
+        <% end %>
+      <% else %>
+        <p class="text-sm text-danger">
+          Esse item ficou sem estoque. Remova para seguir com a compra.
+        </p>
+      <% end %>
+
+      <%= button_to "Remover", cart_item_path(variant), method: :delete,
+            class: ui_button_classes(variant: :text, extra: "text-danger") %>
+    </div>
   </div>
 </li>
