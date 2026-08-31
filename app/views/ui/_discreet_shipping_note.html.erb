@@ -1,0 +1,7 @@
+<%# Aparece só no fluxo de envio, nunca no de retirada.
+    locals: delivery_method (String) — "shipping" mostra a nota. %>
+<% if local_assigns[:delivery_method].to_s == "shipping" %>
+  <p class="rounded-control bg-nude px-3 py-2 text-sm text-wine-dark">
+    Enviado em embalagem discreta, sem identificação do conteúdo.
+  </p>
+<% end %>

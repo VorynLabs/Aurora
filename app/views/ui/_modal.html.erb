@@ -1,0 +1,36 @@
+<%# Use com bloco: o conteúdo do bloco vira o corpo do modal.
+    locals: title, trigger_label, trigger_variant (padrão :primary),
+            trigger_class (opcional, ex.: botão flutuante) %>
+<% dialog_id = "modal-#{title.parameterize}" %>
+
+<div data-controller="modal">
+  <button type="button" data-action="modal#open"
+          class="<%= ui_button_classes(variant: local_assigns.fetch(:trigger_variant, :primary),
+                                       extra: local_assigns[:trigger_class]) %>"
+          aria-haspopup="dialog">
+    <%= trigger_label %>
+  </button>
+
+  <dialog data-modal-target="dialog"
+          data-action="click->modal#closeOnBackdrop"
+          id="<%= dialog_id %>"
+          aria-labelledby="<%= dialog_id %>-title"
+          class="w-[min(32rem,calc(100vw-2rem))] rounded-card border border-nude-deep bg-white p-0
+                 text-wine-ink backdrop:bg-wine-ink/50">
+    <header class="flex items-center justify-between gap-4 border-b border-nude-deep px-5 py-4">
+      <h2 id="<%= dialog_id %>-title" class="text-lg"><%= title %></h2>
+
+      <button type="button" data-action="modal#close" aria-label="Fechar"
+              class="inline-flex h-11 w-11 items-center justify-center rounded-control text-clay-text hover:bg-nude">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.5" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" />
+        </svg>
+      </button>
+    </header>
+
+    <div class="px-5 py-5">
+      <%= yield %>
+    </div>
+  </dialog>
+</div>

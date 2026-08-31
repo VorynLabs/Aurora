@@ -1,0 +1,8 @@
+<%# Mensagens curtas, sem grito. As chaves notice/alert são as do Devise. %>
+<% flash.each do |type, message| %>
+  <% next if message.blank? %>
+  <% tone = type.to_s == "alert" ? "border-danger bg-danger/10 text-danger" : "border-success bg-success/10 text-success" %>
+  <div class="mb-6 rounded-control border <%= tone %> px-4 py-3 text-sm" role="status">
+    <%= message %>
+  </div>
+<% end %>

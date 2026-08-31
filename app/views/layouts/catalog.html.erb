@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
   <head>
-    <%= render "layouts/head", title: "Aurora · estoque" %>
+    <%= render "layouts/head", title: "Aurora" %>
   </head>
 
   <body class="flex min-h-screen flex-col bg-cream">
-    <%# O login usa este mesmo layout, e lá ainda não há admin para o cabeçalho. %>
-    <%= render "layouts/admin/header" if admin_signed_in? %>
+    <%= render "layouts/catalog/header" %>
 
     <main class="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6">
       <%= render "ui/flash" %>
       <%= yield %>
     </main>
+
+    <%= render "layouts/catalog/footer" %>
   </body>
 </html>

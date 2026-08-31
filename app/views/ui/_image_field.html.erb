@@ -1,0 +1,29 @@
+<%# Preview da imagem atual sempre visível, com o botão de troca abaixo. No
+    mobile o preview aparece grande — nunca só o botão.
+    locals: form, attribute (padrão :image), current_image (anexo, opcional) %>
+<% attribute = local_assigns.fetch(:attribute, :image) %>
+<% attached = local_assigns[:current_image].present? && current_image.attached? %>
+
+<div data-controller="image-preview">
+  <span class="<%= ui_label_classes %>">Imagem</span>
+
+  <div class="mt-1 overflow-hidden rounded-card border border-nude-deep bg-white">
+    <img data-image-preview-target="image"
+         src="<%= attached ? url_for(current_image) : "" %>"
+         <%= "hidden" unless attached %>
+         alt="Prévia da imagem do produto"
+         class="aspect-[4/3] w-full object-cover">
+
+    <% unless attached %>
+      <div data-image-preview-target="placeholder">
+        <%= render "ui/image_placeholder", extra: "aspect-[4/3] w-full" %>
+      </div>
+    <% end %>
+  </div>
+
+  <label class="<%= ui_button_classes(variant: :secondary, extra: "mt-3 w-full cursor-pointer sm:w-auto") %>">
+    <%= attached ? "Trocar imagem" : "Escolher imagem" %>
+    <%= form.file_field attribute, class: "sr-only", accept: "image/*",
+          data: { image_preview_target: "input", action: "image-preview#preview" } %>
+  </label>
+</div>
