@@ -35,7 +35,10 @@ jobs:
           bundler-cache: true
 
       - name: Prepare database
-        run: bin/rails db:prepare
+        # db:test:prepare loads the schema without running the seeds. db:prepare
+        # would seed a freshly created database, and specs must not depend on
+        # rows they did not create themselves.
+        run: bin/rails db:test:prepare
 
       - name: Run specs
         run: bundle exec rspec
