@@ -55,6 +55,7 @@ Para rodar só o worker: `bin/jobs`.
 ## Testes
 
 ```bash
+bin/rails tailwindcss:build   # uma vez, se você ainda não rodou bin/dev
 bundle exec rspec
 ```
 
