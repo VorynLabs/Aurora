@@ -1,6 +1,6 @@
-<%# Card público: imagem, nome e o menor preço entre as variações disponíveis.
-    O link para o detalhe entra no escopo da tela de produto. %>
-<article class="<%= ui_card_classes(extra: "flex h-full flex-col") %>">
+<%# Card público: imagem, nome e o menor preço entre as variações disponíveis. %>
+<%= link_to product_path(product_card), class: "block h-full" do %>
+<article class="<%= ui_card_classes(extra: "flex h-full flex-col transition hover:shadow-lg") %>">
   <div class="aspect-[4/5] w-full overflow-hidden rounded-t-card">
     <% if product_card.image.attached? %>
       <%= image_tag product_card.image, alt: product_card.title,
@@ -25,3 +25,4 @@
     <% end %>
   </div>
 </article>
+<% end %>

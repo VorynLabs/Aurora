@@ -13,6 +13,12 @@ export default class extends Controller {
     this.clamp()
   }
 
+  // O teto muda quando o cliente troca de variação: a quantidade escolhida cai
+  // para o novo estoque se tiver ficado alta demais.
+  maxValueChanged() {
+    if (this.hasInputTarget) this.clamp()
+  }
+
   increment() {
     this.assign(this.current + 1)
   }
@@ -30,6 +36,7 @@ export default class extends Controller {
     const clamped = Math.min(this.maxValue, Math.max(this.minValue, wanted))
 
     this.inputTarget.value = clamped
+    this.inputTarget.max = this.maxValue
     this.refreshButtons(clamped)
   }
 

@@ -1,0 +1,26 @@
+<%= link_to "Voltar ao catálogo", root_path,
+      class: ui_button_classes(variant: :text, extra: "-ml-2") %>
+
+<div class="mt-4 grid gap-8 md:grid-cols-2">
+  <div class="overflow-hidden rounded-card border border-nude-deep bg-white">
+    <% if @product.image.attached? %>
+      <%= image_tag @product.image, alt: @product.title,
+            class: "aspect-[4/5] w-full object-cover" %>
+    <% else %>
+      <%= render "ui/image_placeholder", extra: "aspect-[4/5] w-full" %>
+    <% end %>
+  </div>
+
+  <div>
+    <p class="text-sm text-clay-text"><%= @product.category.name %></p>
+    <h1 class="mt-1 font-display text-3xl text-wine-ink"><%= @product.title %></h1>
+
+    <% if @product.description.present? %>
+      <div class="mt-6 whitespace-pre-line text-wine-dark">
+        <%= @product.description %>
+      </div>
+    <% end %>
+
+    <%= render "products/purchase", product: @product, variants: @variants %>
+  </div>
+</div>
