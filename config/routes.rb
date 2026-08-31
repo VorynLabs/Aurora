@@ -9,7 +9,7 @@ Rails.application.routes.draw do
   namespace :admin do
     root "products#index"
 
-    resources :products, only: %i[index new create edit update] do
+    resources :products, only: %i[index new create edit update destroy] do
       member { patch :toggle_visibility }
     end
 

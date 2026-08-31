@@ -57,6 +57,34 @@ RSpec.describe "Ações do produto no painel", type: :system do
     expect(product.reload).not_to be_hidden_by_admin
   end
 
+  it "remove o produto depois de confirmar" do
+    within "##{dom_id(product)}" do
+      click_button "Opções de Camisola"
+    end
+
+    accept_confirm(/Remover Camisola da base/) do
+      within("##{dom_id(product)}") { click_button "Remover" }
+    end
+
+    expect(page).to have_no_selector("##{dom_id(product)}")
+    expect(page).to have_content("Nenhum produto ainda")
+    expect(page).to have_content("0 produtos no painel")
+    expect(Product.count).to eq(0)
+  end
+
+  it "mantém o produto quando a confirmação é recusada" do
+    within "##{dom_id(product)}" do
+      click_button "Opções de Camisola"
+    end
+
+    dismiss_confirm do
+      within("##{dom_id(product)}") { click_button "Remover" }
+    end
+
+    expect(page).to have_selector("##{dom_id(product)}")
+    expect(Product.count).to eq(1)
+  end
+
   it "fecha o menu com Esc" do
     within "##{dom_id(product)}" do
       click_button "Opções de Camisola"

@@ -37,6 +37,9 @@
         <%= render "ui/dropdown_item",
               label: product.hidden_by_admin ? "Mostrar no catálogo" : "Ocultar do catálogo",
               url: toggle_visibility_admin_product_path(product), method: :patch %>
+        <%= render "ui/dropdown_item", label: "Remover", tone: :danger,
+              url: admin_product_path(product), method: :delete,
+              confirm: "Remover #{product.title} da base? Isso não tem volta." %>
       <% end %>
     </div>
   </article>

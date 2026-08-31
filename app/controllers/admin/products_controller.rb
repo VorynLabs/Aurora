@@ -54,6 +54,17 @@ class Admin::ProductsController < Admin::BaseController
     end
   end
 
+  # Remover é diferente de ocultar: apaga da base, junto com as variações.
+  def destroy
+    @product = current_admin.products.find(params[:id])
+    @product.destroy!
+
+    respond_to do |format|
+      format.turbo_stream
+      format.html { redirect_to admin_root_path, notice: "Produto removido." }
+    end
+  end
+
   private
 
   # Um produto precisa de ao menos uma variação, então o formulário já nasce

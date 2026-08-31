@@ -57,6 +57,8 @@ RSpec.describe "Painel de produtos", type: :system do
     end
 
     expect(page).to have_no_selector("dialog[open]")
+    expect(page).to have_content("1 produto no painel")
+    expect(page).to have_no_content("Nenhum produto ainda")
     expect(Product.count).to eq(1)
   end
 

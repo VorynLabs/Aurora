@@ -1,7 +1,10 @@
 <div class="flex flex-wrap items-center justify-between gap-3">
   <h1 class="text-2xl">Produtos</h1>
-  <p class="text-sm text-clay-text">
-    <%= pluralize(@products.size, "produto") %> no painel
+
+  <%# Contador e estado vazio ficam em elementos próprios para os turbo_streams
+      de criação e remoção poderem mantê-los em dia. %>
+  <p id="products_count" class="text-sm text-clay-text">
+    <%= render "admin/products/count", count: @products.size %>
   </p>
 </div>
 
@@ -9,10 +12,8 @@
   <%= render partial: "admin/products/product", collection: @products %>
 </div>
 
-<% if @products.empty? %>
-  <p class="mt-6 text-clay-text">
-    Nenhum produto ainda — cadastre o primeiro.
-  </p>
-<% end %>
+<div id="products_empty">
+  <%= render "admin/products/empty_state" if @products.empty? %>
+</div>
 
 <%= render "admin/products/new_product_modal", product: @new_product %>
