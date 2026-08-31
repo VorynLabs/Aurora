@@ -3,7 +3,9 @@
 <%= turbo_frame_tag dom_id(product) do %>
   <% status = admin_product_status(product) %>
 
-  <article class="<%= ui_card_classes(extra: "flex gap-4 overflow-hidden p-4") %>">
+  <%# Sem overflow-hidden: o menu de opções é posicionado por absolute e seria
+      cortado pelo card. O recorte da miniatura fica no próprio wrapper dela. %>
+  <article class="<%= ui_card_classes(extra: "relative flex gap-4 p-4") %>">
     <div class="h-20 w-20 shrink-0 overflow-hidden rounded-control">
       <% if product.image.attached? %>
         <%= image_tag product.image, alt: product.title, class: "h-full w-full object-cover" %>
@@ -27,9 +29,12 @@
           em <%= pluralize(product.variants.size, "variação", plural: "variações") %>
         </span>
       </div>
+    </div>
 
-      <%= link_to "Editar", edit_admin_product_path(product),
-            class: ui_button_classes(variant: :text, extra: "mt-2 -ml-2") %>
+    <div class="shrink-0">
+      <%= render layout: "ui/dropdown", locals: { label: "Opções de #{product.title}" } do %>
+        <%= render "ui/dropdown_item", label: "Editar", url: edit_admin_product_path(product) %>
+      <% end %>
     </div>
   </article>
 <% end %>

@@ -1,5 +1,9 @@
 require "capybara/rspec"
 
+# Botões só de ícone (dropdown, fechar modal, stepper) são identificados pelo
+# aria-label. Ligando isto, o spec passa a afirmar o nome acessível deles.
+Capybara.enable_aria_label = true
+
 # Chrome headless. O Selenium Manager resolve o driver sozinho.
 Capybara.register_driver :headless_chrome do |app|
   options = Selenium::WebDriver::Chrome::Options.new

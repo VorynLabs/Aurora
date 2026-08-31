@@ -76,6 +76,7 @@ RSpec.describe "Painel de produtos", type: :system do
 
     visit admin_root_path
     within "##{ActionView::RecordIdentifier.dom_id(product)}" do
+      click_button "Opções de Nome antigo"
       click_link "Editar"
       fill_in "Título", with: "Nome novo"
       click_button "Salvar alterações"
