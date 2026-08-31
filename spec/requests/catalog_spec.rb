@@ -88,6 +88,45 @@ RSpec.describe "Catálogo público", type: :request do
     end
   end
 
+  describe "filtro por categoria" do
+    let!(:roupas) { create(:category, name: "Roupas") }
+    let!(:acessorios) { create(:category, name: "Acessórios") }
+
+    before do
+      create(:product, title: "Camisola de cetim", category: roupas)
+      create(:product, title: "Cinta-liga", category: acessorios)
+    end
+
+    it "restringe a lista à categoria escolhida" do
+      get root_path(category_id: roupas.id)
+
+      expect(response.body).to include("Camisola de cetim")
+      expect(response.body).not_to include("Cinta-liga")
+    end
+
+    it "lista tudo sem categoria" do
+      get root_path
+
+      expect(response.body).to include("Camisola de cetim", "Cinta-liga")
+    end
+
+    it "não deixa a categoria furar a regra de visibilidade" do
+      create(:product, title: "Oculto", category: roupas, hidden_by_admin: true)
+
+      get root_path(category_id: roupas.id)
+
+      expect(response.body).not_to include("Oculto")
+    end
+
+    it "avisa quando a categoria não tem nada visível" do
+      vazia = create(:category, name: "Vazia")
+
+      get root_path(category_id: vazia.id)
+
+      expect(response.body).to include("Nada por aqui ainda")
+    end
+  end
+
   it "convida a voltar quando não há nada visível" do
     get root_path
 
