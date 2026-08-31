@@ -36,6 +36,11 @@ bin/rails db:prepare   # cria os bancos e roda as migrations
 bin/rails db:seed      # dados de desenvolvimento
 ```
 
+Os seeds criam um admin de desenvolvimento: `admin@aurora.local`, senha
+`trocar-isto-123` (defina `SEED_ADMIN_PASSWORD` para escolher outra). Ele entra
+pelo painel em `/admin/login`. Não existe cadastro público de admin — para criar
+outro, use o console.
+
 ## Rodando
 
 ```bash
@@ -50,6 +55,7 @@ Para rodar só o worker: `bin/jobs`.
 ## Testes
 
 ```bash
+bin/rails tailwindcss:build   # uma vez, se você ainda não rodou bin/dev
 bundle exec rspec
 ```
 

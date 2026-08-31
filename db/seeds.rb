@@ -1,9 +1,12 @@
 # Dados de desenvolvimento. Rodar mais de uma vez não duplica nada.
-#
-# O admin nasce só com e-mail: as colunas de autenticação chegam com o Devise
-# no próximo escopo.
 
-admin = Admin.find_or_create_by!(email: "admin@aurora.local")
+# Senha do admin de desenvolvimento. Rodar os seeds redefine a senha, o que
+# também destrava o registro criado antes do Devise existir.
+admin_password = ENV.fetch("SEED_ADMIN_PASSWORD", "trocar-isto-123")
+
+admin = Admin.find_or_initialize_by(email: "admin@aurora.local")
+admin.password = admin_password
+admin.save!
 
 roupas = Category.find_or_create_by!(slug: "roupas") do |category|
   category.name = "Roupas"

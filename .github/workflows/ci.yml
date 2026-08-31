@@ -40,5 +40,10 @@ jobs:
         # rows they did not create themselves.
         run: bin/rails db:test:prepare
 
+      - name: Build Tailwind
+        # app/assets/builds/tailwind.css is generated, not committed, and every
+        # view that renders a layout asks the asset pipeline for it.
+        run: bin/rails tailwindcss:build
+
       - name: Run specs
         run: bundle exec rspec

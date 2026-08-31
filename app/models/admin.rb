@@ -1,5 +1,7 @@
 class Admin < ApplicationRecord
-  has_many :products, dependent: :destroy
+  # Sem :registerable: não existe cadastro público de admin. Sem :recoverable:
+  # a redefinição de senha é feita no console, já que hoje há um único admin.
+  devise :database_authenticatable, :rememberable, :validatable
 
-  validates :email, presence: true, uniqueness: { case_sensitive: false }
+  has_many :products, dependent: :destroy
 end
