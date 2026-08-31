@@ -1,0 +1,54 @@
+<%# Contador e mini-carrinho num só elemento: os turbo_streams de adicionar,
+    alterar e remover redesenham este bloco inteiro. Usa o controller de
+    dropdown do sistema de design, com o ícone do carrinho no lugar do ⋮. %>
+<div id="mini_cart" class="relative ml-auto sm:ml-0"
+     data-controller="dropdown" data-action="keydown.esc->dropdown#closeOnEscape">
+  <button type="button" data-dropdown-target="button" data-action="dropdown#toggle"
+          aria-haspopup="true" aria-expanded="false" aria-label="Carrinho"
+          class="inline-flex min-h-11 items-center gap-2 rounded-control px-2 text-nude hover:bg-wine-dark">
+    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="1.5" aria-hidden="true">
+      <path d="M6 7h13l-1.2 8.4a2 2 0 01-2 1.6H9.2a2 2 0 01-2-1.6L6 7zM6 7L5.2 4H3"
+            stroke-linecap="round" stroke-linejoin="round" />
+      <circle cx="10" cy="20" r="1" />
+      <circle cx="17" cy="20" r="1" />
+    </svg>
+    <span data-cart-count="<%= current_cart.count %>"
+          class="rounded-full bg-nude px-2 py-0.5 text-xs font-medium text-wine">
+      <%= current_cart.count %>
+    </span>
+  </button>
+
+  <div data-dropdown-target="menu" hidden role="menu"
+       class="absolute right-0 z-20 mt-1 w-72 overflow-hidden rounded-card border border-nude-deep bg-white p-4 text-wine-ink shadow-lg">
+    <% if current_cart.empty? %>
+      <p class="text-sm text-clay-text">
+        Seu carrinho está vazio — explore o catálogo.
+      </p>
+    <% else %>
+      <ul class="space-y-3">
+        <% current_cart.line_items.each do |line| %>
+          <li class="flex justify-between gap-3 text-sm">
+            <span class="min-w-0">
+              <span class="block truncate"><%= line[:variant].product.title %></span>
+              <span class="block text-xs text-clay-text">
+                <%= line[:variant].name %> · <%= line[:quantity] %>x
+              </span>
+            </span>
+            <span class="shrink-0 text-wine">
+              <%= Variant.format_brl(line[:variant].price_cents * line[:quantity]) %>
+            </span>
+          </li>
+        <% end %>
+      </ul>
+
+      <p class="mt-4 flex justify-between border-t border-nude-deep pt-3 text-sm font-medium">
+        <span>Total</span>
+        <span class="text-wine"><%= Variant.format_brl(current_cart.total_cents) %></span>
+      </p>
+
+      <%= link_to "Ver carrinho", cart_path,
+            class: ui_button_classes(extra: "mt-4 w-full") %>
+    <% end %>
+  </div>
+</div>

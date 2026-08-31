@@ -1,0 +1,36 @@
+<%# locals: cart %>
+<div id="cart_body">
+  <% if cart.empty? %>
+    <p class="mt-6 text-clay-text">
+      Seu carrinho está vazio — explore o catálogo.
+    </p>
+
+    <%= link_to "Ver o catálogo", root_path,
+          class: ui_button_classes(extra: "mt-4") %>
+  <% else %>
+    <ul class="mt-6 space-y-4">
+      <% cart.line_items.each do |line| %>
+        <%= render "cart/line", line: line %>
+      <% end %>
+    </ul>
+
+    <div class="<%= ui_card_classes(extra: "mt-6 p-5") %>">
+      <p class="flex items-baseline justify-between">
+        <span class="font-medium">Total</span>
+        <span class="text-2xl text-wine"><%= Variant.format_brl(cart.total_cents) %></span>
+      </p>
+
+      <p class="mt-1 text-sm text-clay-text">
+        Retirada no local ou envio combinado por aplicativo, pago por você.
+      </p>
+
+      <%# A rota de checkout chega no próximo escopo. %>
+      <%= button_to "Finalizar compra", "/checkout", method: :post,
+            class: ui_button_classes(extra: "mt-4 w-full sm:w-auto") %>
+
+      <div class="mt-4">
+        <%= render "ui/secure_payment_seal" %>
+      </div>
+    </div>
+  <% end %>
+</div>

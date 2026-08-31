@@ -1,8 +1,9 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Busca conforme se digita. O debounce evita uma requisição por tecla.
+// Envia o formulário sozinho quando algo muda. O delay serve para digitação —
+// sem ele, sairia uma requisição por tecla.
 export default class extends Controller {
-  static values = { delay: { type: Number, default: 300 } }
+  static values = { delay: { type: Number, default: 0 } }
 
   submit() {
     clearTimeout(this.timeout)

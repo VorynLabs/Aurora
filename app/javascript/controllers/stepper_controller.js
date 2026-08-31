@@ -21,10 +21,12 @@ export default class extends Controller {
 
   increment() {
     this.assign(this.current + 1)
+    this.notifyChange()
   }
 
   decrement() {
     this.assign(this.current - 1)
+    this.notifyChange()
   }
 
   clamp() {
@@ -43,6 +45,13 @@ export default class extends Controller {
   refreshButtons(quantity) {
     if (this.hasDecrementTarget) this.decrementTarget.disabled = quantity <= this.minValue
     if (this.hasIncrementTarget) this.incrementTarget.disabled = quantity >= this.maxValue
+  }
+
+  // Mexer no value por JS não dispara change; quem escuta o campo (um
+  // formulário que se envia sozinho, por exemplo) precisa do aviso. Só nas
+  // ações do cliente: no connect isso enviaria o formulário sem ele pedir.
+  notifyChange() {
+    this.inputTarget.dispatchEvent(new Event("change", { bubbles: true }))
   }
 
   get current() {

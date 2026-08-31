@@ -21,6 +21,12 @@ Rails.application.routes.draw do
   root "catalog#index"
   resources :products, only: %i[show]
 
+  # Carrinho na sessão; o :id das linhas é o id da variação.
+  get    "cart",           to: "cart#show"
+  post   "cart/items",     to: "cart#add",    as: :cart_items
+  patch  "cart/items/:id", to: "cart#update", as: :cart_item
+  delete "cart/items/:id", to: "cart#remove"
+
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
