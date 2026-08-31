@@ -1,0 +1,27 @@
+<%# Card público: imagem, nome e o menor preço entre as variações disponíveis.
+    O link para o detalhe entra no escopo da tela de produto. %>
+<article class="<%= ui_card_classes(extra: "flex h-full flex-col") %>">
+  <div class="aspect-[4/5] w-full overflow-hidden rounded-t-card">
+    <% if product_card.image.attached? %>
+      <%= image_tag product_card.image, alt: product_card.title,
+            class: "h-full w-full object-cover" %>
+    <% else %>
+      <%= render "ui/image_placeholder", extra: "h-full w-full" %>
+    <% end %>
+  </div>
+
+  <div class="flex flex-1 flex-col gap-1 p-4">
+    <h2 class="font-display text-lg leading-snug"><%= product_card.title %></h2>
+    <p class="text-sm text-clay-text"><%= product_card.category.name %></p>
+
+    <p class="mt-auto pt-2 text-lg text-wine">
+      <%= Variant.format_brl(product_card.min_price_cents) %>
+    </p>
+
+    <% if catalog_low_stock?(product_card) %>
+      <div class="pt-1">
+        <%= render "ui/badge", label: "Últimas unidades", tone: :warning %>
+      </div>
+    <% end %>
+  </div>
+</article>

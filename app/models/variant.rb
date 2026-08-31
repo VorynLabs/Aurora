@@ -12,7 +12,11 @@ class Variant < ApplicationRecord
 
   # helpers de dinheiro
   def price = price_cents / 100.0
-  def price_brl = format("R$ %.2f", price).sub(".", ",")
+  def price_brl = self.class.format_brl(price_cents)
+
+  # Também serve para valores que não vêm de uma variação, como o menor preço
+  # de um produto.
+  def self.format_brl(cents) = format("R$ %.2f", cents.to_i / 100.0).sub(".", ",")
 
   # --- PREÇO EM REAIS (campo virtual do formulário) ---
   # O admin digita "49,90"; o banco guarda 4990. price_cents continua sendo a

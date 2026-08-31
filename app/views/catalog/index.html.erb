@@ -1,0 +1,11 @@
+<h1 class="font-display text-3xl text-wine">Catálogo</h1>
+
+<div class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+  <%= render partial: "catalog/product_card", collection: @products, as: :product_card %>
+</div>
+
+<% if @products.empty? %>
+  <p class="mt-6 text-clay-text">
+    Nada por aqui ainda — volte em breve.
+  </p>
+<% end %>
