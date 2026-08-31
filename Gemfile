@@ -32,6 +32,9 @@ gem "solid_queue", "~> 1.1"
 # Authentication for the admin panel [https://github.com/heartcombo/devise]
 gem "devise", "~> 4.9"
 
+# HTTP client for the InfinitePay API [https://github.com/lostisland/faraday]
+gem "faraday", "~> 2.9"
+
 # Use Redis adapter to run Action Cable in production
 # gem "redis", ">= 4.0.1"
 
@@ -63,6 +66,9 @@ group :development, :test do
   # Browser-driven system specs [https://github.com/teamcapybara/capybara]
   gem "capybara", "~> 3.40"
   gem "selenium-webdriver", "~> 4.27"
+
+  # Stubs outgoing HTTP so specs never touch the network
+  gem "webmock", "~> 3.24"
 end
 
 group :development do
