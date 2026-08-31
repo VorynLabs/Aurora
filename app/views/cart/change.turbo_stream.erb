@@ -1,0 +1,9 @@
+<%# O carrinho do cabeçalho é redesenhado sempre; a página do carrinho só
+    existe quando o cliente está nela, e um alvo ausente é ignorado. %>
+<%= turbo_stream.replace "mini_cart" do %>
+  <%= render "layouts/catalog/cart" %>
+<% end %>
+
+<%= turbo_stream.replace "cart_body" do %>
+  <%= render "cart/body", cart: current_cart %>
+<% end %>

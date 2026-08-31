@@ -1,0 +1,26 @@
+<%# locals: line ({ variant:, quantity: }) %>
+<% variant = line[:variant] %>
+
+<li class="<%= ui_card_classes(extra: "flex gap-4 p-4") %>">
+  <div class="h-20 w-20 shrink-0 overflow-hidden rounded-control">
+    <% if variant.product.image.attached? %>
+      <%= image_tag variant.product.image, alt: variant.product.title,
+            class: "h-full w-full object-cover" %>
+    <% else %>
+      <%= render "ui/image_placeholder", extra: "h-full w-full" %>
+    <% end %>
+  </div>
+
+  <div class="min-w-0 flex-1">
+    <%= link_to variant.product.title, product_path(variant.product),
+          class: "block truncate font-display text-lg" %>
+    <p class="text-sm text-clay-text"><%= variant.name %></p>
+
+    <p class="mt-1 text-wine">
+      <%= Variant.format_brl(variant.price_cents * line[:quantity]) %>
+      <span class="text-sm text-clay-text">
+        (<%= line[:quantity] %> × <%= variant.price_brl %>)
+      </span>
+    </p>
+  </div>
+</li>

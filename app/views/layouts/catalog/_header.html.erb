@@ -1,5 +1,4 @@
-<%# Faixa vinho com a marca, busca e carrinho. Enxuto.
-    Os destinos ficam em "#" até o escopo do catálogo criar as rotas. %>
+<%# Faixa vinho com a marca, busca e carrinho. Enxuto. %>
 <header class="bg-wine text-nude">
   <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-3 px-4 py-4 sm:px-6">
     <%= link_to "Aurora", root_path, class: "font-display text-xl text-nude" %>
@@ -24,17 +23,6 @@
       <% end %>
     <% end %>
 
-    <a href="#" class="ml-auto inline-flex min-h-11 items-center gap-2 rounded-control px-2 text-nude
-                       hover:bg-wine-dark sm:ml-0">
-      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="1.5" aria-hidden="true">
-        <path d="M6 7h13l-1.2 8.4a2 2 0 01-2 1.6H9.2a2 2 0 01-2-1.6L6 7zM6 7L5.2 4H3"
-              stroke-linecap="round" stroke-linejoin="round" />
-        <circle cx="10" cy="20" r="1" />
-        <circle cx="17" cy="20" r="1" />
-      </svg>
-      <span class="sr-only">Carrinho</span>
-      <span class="rounded-full bg-nude px-2 py-0.5 text-xs font-medium text-wine">0</span>
-    </a>
+    <%= render "layouts/catalog/cart" %>
   </div>
 </header>

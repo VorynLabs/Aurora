@@ -1,10 +1,10 @@
 <%# locals: product, variants (só as disponíveis)
-    As rotas de carrinho e checkout chegam nos próximos escopos; os caminhos
-    já são os definitivos do SPEC 00. %>
+    A rota de checkout chega no próximo escopo; o caminho já é o definitivo
+    do SPEC 00. %>
 <% selected = variants.first %>
 
 <div class="mt-6" data-controller="variant-picker">
-  <%= form_with url: "/cart/items", method: :post, class: "space-y-5" do %>
+  <%= form_with url: cart_items_path, method: :post, class: "space-y-5" do %>
     <%= hidden_field_tag :variant_id, selected.id,
           data: { variant_picker_target: "variantId" } %>
 
