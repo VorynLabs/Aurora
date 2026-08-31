@@ -1,0 +1,7 @@
+<h1 class="text-2xl">Novo produto</h1>
+
+<div class="<%= ui_card_classes(extra: "mt-4 p-5") %>">
+  <%= turbo_frame_tag "new_product" do %>
+    <%= render "admin/products/form", product: @product %>
+  <% end %>
+</div>

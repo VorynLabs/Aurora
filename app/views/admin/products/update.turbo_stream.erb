@@ -1,0 +1,4 @@
+<%# O formulário de edição ocupa o lugar do card; devolver o card fecha a edição. %>
+<%= turbo_stream.replace dom_id(@product) do %>
+  <%= render "admin/products/product", product: @product %>
+<% end %>

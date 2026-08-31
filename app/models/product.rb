@@ -4,8 +4,12 @@ class Product < ApplicationRecord
   has_many   :variants, dependent: :destroy
   has_one_attached :image
 
+  # Descarta a linha de variação em branco que o formulário adiciona. Olha
+  # price_reais além de price_cents porque é price_reais que o form envia.
   accepts_nested_attributes_for :variants, allow_destroy: true,
-    reject_if: ->(attrs) { attrs[:name].blank? && attrs[:price_cents].blank? }
+    reject_if: ->(attrs) {
+      attrs[:name].blank? && attrs[:price_cents].blank? && attrs[:price_reais].blank?
+    }
 
   validates :title, presence: true
   validate  :must_have_at_least_one_variant

@@ -9,7 +9,7 @@ Rails.application.routes.draw do
   namespace :admin do
     root "products#index"
 
-    resources :products, only: %i[index]
+    resources :products, only: %i[index new create edit update]
 
     # Referência visual interna: todos os componentes e cores numa página só.
     get "styleguide", to: "styleguide#index"

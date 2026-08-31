@@ -27,6 +27,9 @@
           em <%= pluralize(product.variants.size, "variação", plural: "variações") %>
         </span>
       </div>
+
+      <%= link_to "Editar", edit_admin_product_path(product),
+            class: ui_button_classes(variant: :text, extra: "mt-2 -ml-2") %>
     </div>
   </article>
 <% end %>

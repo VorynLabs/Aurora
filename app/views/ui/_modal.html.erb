@@ -1,12 +1,15 @@
 <%# Use com bloco: o conteúdo do bloco vira o corpo do modal.
     locals: title, trigger_label, trigger_variant (padrão :primary),
-            trigger_class (opcional, ex.: botão flutuante) %>
+            trigger_class (classes extras) ou trigger_classes (substitui todas,
+            para gatilhos que não são botão comum — o flutuante, por exemplo),
+            open (abre já conectado, para reexibir com erros) %>
 <% dialog_id = "modal-#{title.parameterize}" %>
+<% trigger_classes = local_assigns[:trigger_classes] ||
+     ui_button_classes(variant: local_assigns.fetch(:trigger_variant, :primary),
+                       extra: local_assigns[:trigger_class]) %>
 
-<div data-controller="modal">
-  <button type="button" data-action="modal#open"
-          class="<%= ui_button_classes(variant: local_assigns.fetch(:trigger_variant, :primary),
-                                       extra: local_assigns[:trigger_class]) %>"
+<div data-controller="modal" data-modal-open-value="<%= local_assigns.fetch(:open, false) %>">
+  <button type="button" data-action="modal#open" class="<%= trigger_classes %>"
           aria-haspopup="dialog">
     <%= trigger_label %>
   </button>

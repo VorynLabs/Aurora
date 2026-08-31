@@ -1,0 +1,9 @@
+<%# Card novo no topo da lista e modal trocado por um limpo — o painel fechado
+    já é o retorno visual de que deu certo. %>
+<%= turbo_stream.prepend "products" do %>
+  <%= render "admin/products/product", product: @product %>
+<% end %>
+
+<%= turbo_stream.replace "new_product_modal" do %>
+  <%= render "admin/products/new_product_modal", product: @new_product %>
+<% end %>

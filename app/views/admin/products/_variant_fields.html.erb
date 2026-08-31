@@ -1,0 +1,32 @@
+<%# locals: vf (form builder da variação) %>
+<div class="rounded-control border border-nude-deep p-3" data-nested-variants-target="row">
+  <div class="grid gap-3 sm:grid-cols-2">
+    <div class="sm:col-span-2">
+      <%= vf.label :name, "Variação", class: ui_label_classes %>
+      <%= vf.text_field :name, placeholder: "Preta / P", class: ui_input_classes(extra: "mt-1") %>
+    </div>
+
+    <div>
+      <%= vf.label :price_reais, "Preço", class: ui_label_classes %>
+      <%= vf.text_field :price_reais, placeholder: "49,90", inputmode: "decimal",
+            class: ui_input_classes(extra: "mt-1") %>
+    </div>
+
+    <div>
+      <%= vf.label :quantity, "Quantidade", class: ui_label_classes %>
+      <%= vf.number_field :quantity, min: 0, class: ui_input_classes(extra: "mt-1") %>
+    </div>
+
+    <div class="sm:col-span-2">
+      <%= vf.label :sku, "SKU (opcional)", class: ui_label_classes %>
+      <%= vf.text_field :sku, class: ui_input_classes(extra: "mt-1") %>
+    </div>
+  </div>
+
+  <%= vf.hidden_field :_destroy %>
+
+  <button type="button" data-action="nested-variants#remove"
+          class="<%= ui_button_classes(variant: :text, extra: "mt-2 text-danger") %>">
+    Remover variação
+  </button>
+</div>

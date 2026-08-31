@@ -1,0 +1,16 @@
+<%# locals: product, open (opcional — reabre o modal com os erros) %>
+<div id="new_product_modal">
+  <%= render layout: "ui/modal",
+        locals: {
+          title: "Novo produto",
+          trigger_label: "+",
+          open: local_assigns.fetch(:open, false),
+          trigger_classes: "fixed bottom-6 right-6 z-20 inline-flex h-14 w-14 items-center " \
+                           "justify-center rounded-full bg-wine text-2xl text-cream shadow-lg " \
+                           "hover:bg-wine-dark"
+        } do %>
+    <%= turbo_frame_tag "new_product" do %>
+      <%= render "admin/products/form", product: product %>
+    <% end %>
+  <% end %>
+</div>
