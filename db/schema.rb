@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_08_31_042026) do
+ActiveRecord::Schema[7.1].define(version: 2026_08_31_042133) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -56,6 +56,19 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_31_042026) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["slug"], name: "index_categories_on_slug", unique: true
+  end
+
+  create_table "products", force: :cascade do |t|
+    t.bigint "admin_id", null: false
+    t.bigint "category_id", null: false
+    t.string "title", null: false
+    t.text "description"
+    t.boolean "hidden_by_admin", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["admin_id", "title"], name: "index_products_on_admin_id_and_title"
+    t.index ["admin_id"], name: "index_products_on_admin_id"
+    t.index ["category_id"], name: "index_products_on_category_id"
   end
 
   create_table "solid_queue_batch_executions", force: :cascade do |t|
@@ -208,8 +221,25 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_31_042026) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
+  create_table "variants", force: :cascade do |t|
+    t.bigint "product_id", null: false
+    t.string "name", null: false
+    t.string "sku"
+    t.integer "price_cents", null: false
+    t.string "currency", default: "BRL", null: false
+    t.integer "quantity", default: 0, null: false
+    t.integer "reserved", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id", "name"], name: "index_variants_on_product_id_and_name"
+    t.index ["product_id"], name: "index_variants_on_product_id"
+    t.index ["sku"], name: "index_variants_on_sku", unique: true, where: "(sku IS NOT NULL)"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "products", "admins"
+  add_foreign_key "products", "categories"
   add_foreign_key "solid_queue_batch_executions", "solid_queue_batches", column: "batch_id", on_delete: :cascade
   add_foreign_key "solid_queue_batch_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
@@ -218,4 +248,5 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_31_042026) do
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "variants", "products"
 end
