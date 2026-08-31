@@ -24,8 +24,7 @@
         Retirada no local ou envio combinado por aplicativo, pago por você.
       </p>
 
-      <%# A rota de checkout chega no próximo escopo. %>
-      <%= button_to "Finalizar compra", "/checkout", method: :post,
+      <%= link_to "Finalizar compra", checkout_path,
             class: ui_button_classes(extra: "mt-4 w-full sm:w-auto") %>
 
       <div class="mt-4">

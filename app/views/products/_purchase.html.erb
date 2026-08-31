@@ -48,7 +48,9 @@
     <div class="flex flex-col gap-3 sm:flex-row">
       <%= submit_tag "Adicionar ao carrinho",
             class: ui_button_classes(extra: "w-full sm:w-auto") %>
-      <%= submit_tag "Comprar agora", formaction: "/checkout",
+      <%# Vai para a tela de checkout com este item só, sem passar pelo
+          carrinho da sessão. %>
+      <%= submit_tag "Comprar agora", formaction: checkout_path, formmethod: "get",
             class: ui_button_classes(variant: :secondary, extra: "w-full sm:w-auto") %>
     </div>
 

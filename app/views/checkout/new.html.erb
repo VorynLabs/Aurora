@@ -1,0 +1,73 @@
+<h1 class="font-display text-3xl text-wine">Finalizar compra</h1>
+
+<div class="mt-6 grid gap-6 lg:grid-cols-3">
+  <section class="lg:col-span-2">
+    <h2 class="font-display text-lg">Seu pedido</h2>
+
+    <ul class="mt-3 space-y-3">
+      <% @cart.line_items.each do |line| %>
+        <li class="<%= ui_card_classes(extra: "flex justify-between gap-4 p-4") %>">
+          <span class="min-w-0">
+            <span class="block truncate font-display text-lg">
+              <%= line[:variant].product.title %>
+            </span>
+            <span class="block text-sm text-clay-text">
+              <%= line[:variant].name %> · <%= line[:quantity] %> × <%= line[:variant].price_brl %>
+            </span>
+          </span>
+
+          <span class="shrink-0 text-wine">
+            <%= Variant.format_brl(line[:variant].price_cents * line[:quantity]) %>
+          </span>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+
+  <aside class="<%= ui_card_classes(extra: "h-fit p-5") %>">
+    <%= form_with url: checkout_path, method: :post, data: { turbo: false } do %>
+      <%# "Comprar agora" carrega o item pela URL; leva adiante no POST. %>
+      <% if params[:variant_id].present? %>
+        <%= hidden_field_tag :variant_id, params[:variant_id] %>
+        <%= hidden_field_tag :quantity, params[:quantity] %>
+      <% end %>
+
+      <div data-controller="delivery">
+        <span class="<%= ui_label_classes %>">Entrega</span>
+
+        <div class="mt-2 space-y-2">
+          <label class="flex items-center gap-2 text-sm">
+            <%= radio_button_tag :delivery, "pickup", true,
+                  data: { action: "change->delivery#refresh" } %>
+            Retirada no local
+          </label>
+
+          <label class="flex items-center gap-2 text-sm">
+            <%= radio_button_tag :delivery, "shipping", false,
+                  data: { action: "change->delivery#refresh" } %>
+            Envio por aplicativo, pago por você
+          </label>
+        </div>
+
+        <div class="mt-3" data-delivery-target="note" hidden>
+          <%= render "ui/discreet_shipping_note", delivery_method: "shipping" %>
+        </div>
+      </div>
+
+      <p class="mt-5 flex items-baseline justify-between border-t border-nude-deep pt-4">
+        <span class="font-medium">Total</span>
+        <span class="text-2xl text-wine"><%= Variant.format_brl(@cart.total_cents) %></span>
+      </p>
+
+      <p class="mt-1 text-sm text-clay-text">
+        A entrega não altera o valor.
+      </p>
+
+      <%= submit_tag "Ir para o pagamento", class: ui_button_classes(extra: "mt-4 w-full") %>
+
+      <div class="mt-4">
+        <%= render "ui/secure_payment_seal" %>
+      </div>
+    <% end %>
+  </aside>
+</div>
