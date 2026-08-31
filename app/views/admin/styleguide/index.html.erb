@@ -1,0 +1,182 @@
+<% section = "mt-12 border-t border-nude-deep pt-8 first:mt-0 first:border-0 first:pt-0" %>
+<% heading = "text-xl" %>
+<% caption = "mt-1 text-sm text-clay-text" %>
+
+<header>
+  <h1 class="font-display text-3xl text-wine">Styleguide Aurora</h1>
+  <p class="<%= caption %>">
+    Todos os componentes e cores do tema, juntos. Use esta página para revisar
+    a identidade antes de aplicá-la nas telas.
+  </p>
+</header>
+
+<section class="<%= section %> mt-10">
+  <h2 class="<%= heading %>">Paleta</h2>
+  <p class="<%= caption %>">Prefira sempre o token ao hex solto no ERB.</p>
+
+  <ul class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <% @palette.each do |color| %>
+      <li class="<%= ui_card_classes(extra: "flex items-center gap-3 p-3") %>">
+        <span class="h-12 w-12 shrink-0 rounded-control border border-nude-deep"
+              style="background-color: <%= color[:hex] %>"></span>
+        <span class="min-w-0">
+          <span class="block text-sm font-medium"><%= color[:token] %></span>
+          <span class="block text-xs text-clay-text"><%= color[:hex] %> · <%= color[:usage] %></span>
+        </span>
+      </li>
+    <% end %>
+  </ul>
+</section>
+
+<section class="<%= section %>">
+  <h2 class="<%= heading %>">Tipografia</h2>
+  <p class="<%= caption %>">Serifada nos títulos, sans humanista na interface. Sentence case sempre.</p>
+
+  <div class="<%= ui_card_classes(extra: "mt-4 space-y-3 p-5") %>">
+    <p class="font-display text-3xl text-wine">Camisola de cetim</p>
+    <p class="font-display text-xl">Título de seção</p>
+    <p class="text-base">Corpo de texto na sans, com a legibilidade que a UI precisa.</p>
+    <p class="text-sm text-clay-text">Texto secundário, para apoio e legendas.</p>
+    <p class="text-lg font-medium text-wine">R$ 49,90</p>
+  </div>
+</section>
+
+<section class="<%= section %>">
+  <h2 class="<%= heading %>">Botões</h2>
+  <p class="<%= caption %>">Verbo curto. Altura mínima de 44px em todos.</p>
+
+  <div class="mt-4 flex flex-wrap items-center gap-3">
+    <button type="button" class="<%= ui_button_classes %>">Adicionar</button>
+    <button type="button" class="<%= ui_button_classes(variant: :secondary) %>">Continuar comprando</button>
+    <button type="button" class="<%= ui_button_classes(variant: :text) %>">Ver detalhes</button>
+    <button type="button" class="<%= ui_button_classes %>" disabled>Indisponível</button>
+  </div>
+</section>
+
+<section class="<%= section %>">
+  <h2 class="<%= heading %>">Campos</h2>
+
+  <div class="mt-4 grid gap-4 sm:grid-cols-2">
+    <div>
+      <label for="sg-text" class="<%= ui_label_classes %>">Título</label>
+      <input type="text" id="sg-text" placeholder="Camiseta básica" class="<%= ui_input_classes(extra: "mt-1") %>">
+    </div>
+
+    <div>
+      <label for="sg-select" class="<%= ui_label_classes %>">Categoria</label>
+      <select id="sg-select" class="<%= ui_input_classes(extra: "mt-1") %>">
+        <option>Roupas</option>
+        <option>Acessórios</option>
+      </select>
+    </div>
+
+    <div class="sm:col-span-2">
+      <label for="sg-textarea" class="<%= ui_label_classes %>">Descrição</label>
+      <textarea id="sg-textarea" rows="3" class="<%= ui_input_classes(extra: "mt-1") %>">Algodão penteado</textarea>
+    </div>
+
+    <div>
+      <label for="sg-invalid" class="<%= ui_label_classes %>">Campo com erro</label>
+      <input type="text" id="sg-invalid" value="" class="<%= ui_input_classes(invalid: true, extra: "mt-1") %>">
+      <p class="mt-1 text-sm text-danger">Informe um título.</p>
+    </div>
+  </div>
+</section>
+
+<section class="<%= section %>">
+  <h2 class="<%= heading %>">Card e badges</h2>
+  <p class="<%= caption %>">
+    Card em branco com borda, para contrastar com o creme da página no mobile.
+    Cada par de cor de badge foi medido e passa o AA de 4.5:1.
+  </p>
+
+  <div class="mt-4 grid gap-4 sm:grid-cols-2">
+    <div class="<%= ui_card_classes(extra: "overflow-hidden") %>">
+      <%= render "ui/image_placeholder", extra: "aspect-[4/3] w-full" %>
+      <div class="p-4">
+        <p class="font-display text-lg">Camiseta básica</p>
+        <p class="mt-1 text-wine">R$ 49,90</p>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <%= render "ui/badge", label: "No catálogo", tone: :success %>
+          <%= render "ui/badge", label: "Roupas", tone: :neutral %>
+        </div>
+      </div>
+    </div>
+
+    <div class="<%= ui_card_classes(extra: "p-4") %>">
+      <p class="text-sm font-medium">Todos os tons</p>
+      <div class="mt-3 flex flex-wrap gap-2">
+        <%= render "ui/badge", label: "Oculto", tone: :neutral %>
+        <%= render "ui/badge", label: "Em estoque", tone: :success %>
+        <%= render "ui/badge", label: "Últimas unidades", tone: :warning %>
+        <%= render "ui/badge", label: "Esgotado", tone: :danger %>
+        <%= render "ui/badge", label: "Novo", tone: :accent %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="<%= section %>">
+  <h2 class="<%= heading %>">Stepper, dropdown e modal</h2>
+  <p class="<%= caption %>">O stepper para no estoque informado; aqui, 3 unidades.</p>
+
+  <div class="mt-4 flex flex-wrap items-start gap-6">
+    <%= render "ui/stepper", name: "quantidade", value: 1, max: 3 %>
+
+    <%= render layout: "ui/dropdown", locals: { label: "Opções do produto" } do %>
+      <%= render "ui/dropdown_item", label: "Editar", url: "#" %>
+      <%= render "ui/dropdown_item", label: "Ocultar do catálogo", url: "#" %>
+      <%= render "ui/dropdown_item", label: "Remover", url: "#", tone: :danger %>
+    <% end %>
+
+    <%= render layout: "ui/modal",
+          locals: { title: "Novo produto", trigger_label: "Abrir modal" } do %>
+      <p class="text-sm text-clay-text">
+        O formulário de produto entra aqui no escopo do CRUD.
+      </p>
+    <% end %>
+  </div>
+</section>
+
+<section class="<%= section %>">
+  <h2 class="<%= heading %>">Mensagens</h2>
+  <p class="<%= caption %>">Dizem o que houve e o que fazer, sem gritar. As duas acima são reais.</p>
+</section>
+
+<section class="<%= section %>">
+  <h2 class="<%= heading %>">Imagem do produto</h2>
+  <p class="<%= caption %>">
+    O preview da imagem atual fica sempre visível, com o botão de troca abaixo —
+    no mobile, nunca só o botão.
+  </p>
+
+  <%= form_with url: "#", scope: :styleguide, class: "mt-4 max-w-sm" do |f| %>
+    <%= render "ui/image_field", form: f %>
+  <% end %>
+</section>
+
+<section class="<%= section %>">
+  <h2 class="<%= heading %>">Selo e aviso de envio</h2>
+
+  <div class="mt-4 space-y-4">
+    <%= render "ui/secure_payment_seal" %>
+
+    <div class="max-w-md">
+      <%= render "ui/discreet_shipping_note", delivery_method: "shipping" %>
+    </div>
+
+    <p class="text-sm text-clay-text">
+      Com a entrega em "retirada", a nota acima não é renderizada.
+    </p>
+  </div>
+</section>
+
+<section class="<%= section %>">
+  <h2 class="<%= heading %>">Cabeçalho e rodapé do catálogo</h2>
+  <p class="<%= caption %>">Prévia fora do layout público, para revisão aqui dentro.</p>
+
+  <div class="mt-4 overflow-hidden rounded-card border border-nude-deep">
+    <%= render "layouts/catalog/header" %>
+    <%= render "layouts/catalog/footer" %>
+  </div>
+</section>

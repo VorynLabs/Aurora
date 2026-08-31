@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Os SPECs trazem exemplos de ERB; sem isto o Tailwind gera utilitários que
+   só existem na documentação (bg-black, h-14, md:grid-cols-4...). */
+@source not "../../../specs";
+
 /*
  * Tema Aurora — vinho + nude. Ver specs/SPEC_05_design.md.
  *

@@ -9,6 +9,9 @@ Rails.application.routes.draw do
   namespace :admin do
     # Placeholder do painel: o escopo do CRUD troca a raiz por products#index.
     root "dashboard#index"
+
+    # Referência visual interna: todos os componentes e cores numa página só.
+    get "styleguide", to: "styleguide#index"
   end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
