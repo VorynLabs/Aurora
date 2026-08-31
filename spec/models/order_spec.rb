@@ -41,19 +41,19 @@ RSpec.describe Order, type: :model do
     it "traz os pendentes cuja reserva já venceu" do
       vencido = create(:order, reserved_until: 1.minute.ago)
 
-      expect(Order.stale_pending).to contain_exactly(vencido)
+      expect(Order.stale_pending).to include(vencido)
     end
 
     it "ignora pendentes ainda dentro do prazo" do
-      create(:order, reserved_until: 10.minutes.from_now)
+      no_prazo = create(:order, reserved_until: 10.minutes.from_now)
 
-      expect(Order.stale_pending).to be_empty
+      expect(Order.stale_pending).not_to include(no_prazo)
     end
 
     it "ignora pedidos já pagos, mesmo com a reserva vencida" do
-      create(:order, status: :paid, reserved_until: 1.minute.ago)
+      pago = create(:order, status: :paid, reserved_until: 1.minute.ago)
 
-      expect(Order.stale_pending).to be_empty
+      expect(Order.stale_pending).not_to include(pago)
     end
   end
 

@@ -21,8 +21,8 @@ RSpec.describe Category, type: :model do
   end
 
   it "rejeita slug duplicado" do
-    create(:category, name: "Roupas")
-    duplicate = build(:category, name: "Outra", slug: "roupas")
+    existente = create(:category)
+    duplicate = build(:category, slug: existente.slug)
 
     expect(duplicate).not_to be_valid
     expect(duplicate.errors[:slug]).to be_present
@@ -30,10 +30,13 @@ RSpec.describe Category, type: :model do
 
   describe ".ordered" do
     it "ordena por posição e depois por nome" do
-      segunda = create(:category, name: "Acessórios", position: 2)
-      primeira = create(:category, name: "Roupas", position: 1)
+      terceira = create(:category, name: "Vestidos", position: 2)
+      primeira = create(:category, name: "Acessórios", position: 1)
+      segunda = create(:category, name: "Bolsas", position: 2)
 
-      expect(Category.ordered).to eq([primeira, segunda])
+      ordenadas = Category.ordered.where(id: [terceira.id, primeira.id, segunda.id])
+
+      expect(ordenadas).to eq([primeira, segunda, terceira])
     end
   end
 end

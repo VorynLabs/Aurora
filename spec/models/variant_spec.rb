@@ -18,7 +18,7 @@ RSpec.describe Variant, type: :model do
       create(:variant, product: product, quantity: 0, reserved: 0)
       create(:variant, product: product, quantity: 5, reserved: 5)
 
-      expect(Variant.available).to contain_exactly(disponivel)
+      expect(product.variants.available).to contain_exactly(disponivel)
     end
   end
 
