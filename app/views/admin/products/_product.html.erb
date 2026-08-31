@@ -1,0 +1,32 @@
+<%# Card do painel: mostra tudo, inclusive oculto e sem estoque. O turbo_frame
+    permite trocar só este card por um formulário de edição, no lugar. %>
+<%= turbo_frame_tag dom_id(product) do %>
+  <% status = admin_product_status(product) %>
+
+  <article class="<%= ui_card_classes(extra: "flex gap-4 overflow-hidden p-4") %>">
+    <div class="h-20 w-20 shrink-0 overflow-hidden rounded-control">
+      <% if product.image.attached? %>
+        <%= image_tag product.image, alt: product.title, class: "h-full w-full object-cover" %>
+      <% else %>
+        <%= render "ui/image_placeholder", extra: "h-full w-full" %>
+      <% end %>
+    </div>
+
+    <div class="min-w-0 flex-1">
+      <h2 class="truncate font-display text-lg"><%= product.title %></h2>
+      <p class="text-sm text-clay-text"><%= product.category.name %></p>
+
+      <p class="mt-1 text-wine">
+        <%= product.variants.min_by(&:price_cents)&.price_brl %>
+      </p>
+
+      <div class="mt-3 flex flex-wrap items-center gap-2">
+        <%= render "ui/badge", label: status[:label], tone: status[:tone] %>
+        <span class="text-xs text-clay-text">
+          <%= pluralize(product.variants.sum(&:quantity), "unidade") %>
+          em <%= pluralize(product.variants.size, "variação", plural: "variações") %>
+        </span>
+      </div>
+    </div>
+  </article>
+<% end %>

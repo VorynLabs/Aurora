@@ -7,8 +7,9 @@ Rails.application.routes.draw do
              controllers: { sessions: "admin/sessions" }
 
   namespace :admin do
-    # Placeholder do painel: o escopo do CRUD troca a raiz por products#index.
-    root "dashboard#index"
+    root "products#index"
+
+    resources :products, only: %i[index]
 
     # Referência visual interna: todos os componentes e cores numa página só.
     get "styleguide", to: "styleguide#index"
