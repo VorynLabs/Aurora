@@ -61,6 +61,68 @@ RSpec.describe "Detalhe do produto", type: :request do
     end
   end
 
+  describe "bloco de compra" do
+    it "traz o seletor de quantidade preso ao estoque da variação" do
+      product = create(:product, variant_quantity: 3)
+
+      get product_path(product)
+
+      expect(response.body).to include('data-stepper-max-value="3"')
+    end
+
+    it "desconta o que já está reservado no teto do estoque" do
+      product = create(:product, variant_quantity: 10, variant_reserved: 7)
+
+      get product_path(product)
+
+      expect(response.body).to include('data-stepper-max-value="3"')
+    end
+
+    it "oferece o seletor quando há mais de uma variação disponível" do
+      product = create(:product, variant_quantity: 2)
+      create(:variant, product: product, name: "Preta / M", quantity: 4)
+
+      get product_path(product)
+
+      expect(response.body).to include("Preta / M")
+      expect(response.body).to include('data-variant-picker-target="select"')
+    end
+
+    it "não oferece seletor quando só há uma variação" do
+      create(:product, variant_quantity: 2)
+
+      get product_path(Product.last)
+
+      expect(response.body).not_to include('data-variant-picker-target="select"')
+    end
+
+    it "esconde do seletor a variação sem estoque" do
+      product = create(:product, variant_quantity: 2)
+      create(:variant, product: product, name: "Esgotada", quantity: 0)
+
+      get product_path(product)
+
+      expect(response.body).not_to include("Esgotada")
+    end
+
+    it "leva os dois botões de compra e o selo de pagamento" do
+      create(:product)
+
+      get product_path(Product.last)
+
+      expect(response.body).to include("Adicionar ao carrinho", "Comprar agora", "Pagamento seguro")
+    end
+
+    it "aponta os botões para as rotas de carrinho e checkout" do
+      create(:product)
+
+      get product_path(Product.last)
+
+      expect(response.body).to include(%(action="/cart/items"))
+      expect(response.body).to include(%(formaction="/checkout"))
+    end
+  end
+
   it "é alcançável a partir do card do catálogo" do
     product = create(:product, title: "Camisola de cetim")
 

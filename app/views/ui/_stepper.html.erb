@@ -1,9 +1,11 @@
 <%# Seletor de quantidade. O max vem do estoque disponível da variação.
-    locals: name, value (padrão 1), min (padrão 1), max %>
+    locals: name, value (padrão 1), min (padrão 1), max,
+            extra_attributes (opcional, ex.: alvo de outro controller) %>
 <div class="inline-flex items-center rounded-control border border-nude-deep bg-white"
      data-controller="stepper"
      data-stepper-min-value="<%= local_assigns.fetch(:min, 1) %>"
-     data-stepper-max-value="<%= max %>">
+     data-stepper-max-value="<%= max %>"
+     <%= tag.attributes(local_assigns.fetch(:extra_attributes, {})) %>>
   <button type="button" data-stepper-target="decrement" data-action="stepper#decrement"
           aria-label="Diminuir quantidade"
           class="inline-flex h-11 w-11 items-center justify-center text-wine disabled:opacity-40">

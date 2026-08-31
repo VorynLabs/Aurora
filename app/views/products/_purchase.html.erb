@@ -1,0 +1,57 @@
+<%# locals: product, variants (só as disponíveis)
+    As rotas de carrinho e checkout chegam nos próximos escopos; os caminhos
+    já são os definitivos do SPEC 00. %>
+<% selected = variants.first %>
+
+<div class="mt-6" data-controller="variant-picker">
+  <%= form_with url: "/cart/items", method: :post, class: "space-y-5" do %>
+    <%= hidden_field_tag :variant_id, selected.id,
+          data: { variant_picker_target: "variantId" } %>
+
+    <p class="flex flex-wrap items-baseline gap-x-3">
+      <span data-variant-picker-target="price" class="text-2xl text-wine">
+        <%= selected.price_brl %>
+      </span>
+      <span data-variant-picker-target="stock" class="text-sm text-clay-text">
+        <%= catalog_stock_label(selected.available_stock) %>
+      </span>
+    </p>
+
+    <% if variants.size > 1 %>
+      <div>
+        <%= label_tag :variant, "Variação", class: ui_label_classes %>
+        <select id="variant" data-variant-picker-target="select"
+                data-action="change->variant-picker#select"
+                class="<%= ui_input_classes(extra: "mt-1") %>">
+          <% variants.each do |variant| %>
+            <option value="<%= variant.id %>"
+                    data-price="<%= variant.price_brl %>"
+                    data-stock="<%= variant.available_stock %>"
+                    data-stock-label="<%= catalog_stock_label(variant.available_stock) %>">
+              <%= variant.name %>
+            </option>
+          <% end %>
+        </select>
+      </div>
+    <% else %>
+      <p class="text-sm text-clay-text">Variação: <%= selected.name %></p>
+    <% end %>
+
+    <div>
+      <span class="<%= ui_label_classes %>">Quantidade</span>
+      <div class="mt-1">
+        <%= render "ui/stepper", name: "quantity", value: 1, max: selected.available_stock,
+              extra_attributes: { data: { variant_picker_target: "stepper" } } %>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-3 sm:flex-row">
+      <%= submit_tag "Adicionar ao carrinho",
+            class: ui_button_classes(extra: "w-full sm:w-auto") %>
+      <%= submit_tag "Comprar agora", formaction: "/checkout",
+            class: ui_button_classes(variant: :secondary, extra: "w-full sm:w-auto") %>
+    </div>
+
+    <%= render "ui/secure_payment_seal" %>
+  <% end %>
+</div>
