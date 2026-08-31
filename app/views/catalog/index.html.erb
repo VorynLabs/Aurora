@@ -1,0 +1,33 @@
+<%# Diz ao campo de busca do cabeçalho onde entregar o resultado. %>
+<% content_for :catalog_search_frame, "catalog-grid" %>
+
+<h1 class="font-display text-3xl text-wine">Catálogo</h1>
+
+<%# As pílulas ficam dentro do frame junto com a grade: assim a que está ativa
+    também é redesenhada a cada troca. turbo_action: advance mantém a URL e o
+    botão voltar em dia. %>
+<%= turbo_frame_tag "catalog-grid", data: { turbo_action: "advance" } do %>
+  <nav class="mt-6 flex gap-2 overflow-x-auto pb-1" aria-label="Categorias">
+    <%= link_to "Todos", root_path(q: params[:q].presence),
+          class: catalog_pill_classes(active: params[:category_id].blank?) %>
+
+    <% @categories.each do |category| %>
+      <%= link_to category.name, root_path(category_id: category.id, q: params[:q].presence),
+            class: catalog_pill_classes(active: params[:category_id].to_s == category.id.to_s) %>
+    <% end %>
+  </nav>
+
+  <div class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+    <%= render partial: "catalog/product_card", collection: @products, as: :product_card %>
+  </div>
+
+  <% if @products.empty? %>
+    <p class="mt-6 text-clay-text">
+      <% if params[:q].present? %>
+        Nada encontrado para “<%= params[:q] %>”. Tente outra palavra.
+      <% else %>
+        Nada por aqui ainda — volte em breve.
+      <% end %>
+    </p>
+  <% end %>
+<% end %>
