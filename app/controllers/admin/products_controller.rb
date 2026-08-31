@@ -42,6 +42,18 @@ class Admin::ProductsController < Admin::BaseController
     end
   end
 
+  # Ocultação manual: a única visibilidade que grava estado. Sumir do catálogo
+  # por estoque zerado é derivado da regra do SPEC 01 e não passa por aqui.
+  def toggle_visibility
+    @product = current_admin.products.find(params[:id])
+    @product.update!(hidden_by_admin: !@product.hidden_by_admin)
+
+    respond_to do |format|
+      format.turbo_stream
+      format.html { redirect_to admin_root_path }
+    end
+  end
+
   private
 
   # Um produto precisa de ao menos uma variação, então o formulário já nasce

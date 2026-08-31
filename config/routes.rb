@@ -9,7 +9,9 @@ Rails.application.routes.draw do
   namespace :admin do
     root "products#index"
 
-    resources :products, only: %i[index new create edit update]
+    resources :products, only: %i[index new create edit update] do
+      member { patch :toggle_visibility }
+    end
 
     # Referência visual interna: todos os componentes e cores numa página só.
     get "styleguide", to: "styleguide#index"

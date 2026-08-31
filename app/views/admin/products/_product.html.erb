@@ -34,6 +34,9 @@
     <div class="shrink-0">
       <%= render layout: "ui/dropdown", locals: { label: "Opções de #{product.title}" } do %>
         <%= render "ui/dropdown_item", label: "Editar", url: edit_admin_product_path(product) %>
+        <%= render "ui/dropdown_item",
+              label: product.hidden_by_admin ? "Mostrar no catálogo" : "Ocultar do catálogo",
+              url: toggle_visibility_admin_product_path(product), method: :patch %>
       <% end %>
     </div>
   </article>

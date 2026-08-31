@@ -205,6 +205,63 @@ RSpec.describe "Produtos do painel", type: :request do
     end
   end
 
+  describe "PATCH /admin/products/:id/toggle_visibility" do
+    let(:turbo) { { "Accept" => "text/vnd.turbo-stream.html" } }
+
+    before { sign_in admin }
+
+    it "oculta um produto visível" do
+      product = create(:product, admin: admin, hidden_by_admin: false)
+
+      patch toggle_visibility_admin_product_path(product)
+
+      expect(product.reload).to be_hidden_by_admin
+    end
+
+    it "volta a mostrar um produto oculto" do
+      product = create(:product, admin: admin, hidden_by_admin: true)
+
+      patch toggle_visibility_admin_product_path(product)
+
+      expect(product.reload).not_to be_hidden_by_admin
+    end
+
+    it "troca o card e o badge por turbo_stream" do
+      product = create(:product, admin: admin, title: "Camisola", hidden_by_admin: false)
+
+      patch toggle_visibility_admin_product_path(product), headers: turbo
+
+      expect(response.body).to include(%(action="replace" target="#{ActionView::RecordIdentifier.dom_id(product)}"))
+      expect(response.body).to include("Oculto")
+      expect(response.body).to include("Mostrar no catálogo")
+    end
+
+    it "não mexe no estoque nem nas variações" do
+      product = create(:product, admin: admin, variant_quantity: 5)
+
+      expect { patch toggle_visibility_admin_product_path(product) }
+        .not_to change { product.variants.sum(:quantity) }
+    end
+
+    it "não alcança produto de outro admin" do
+      alheio = create(:product, admin: create(:admin), hidden_by_admin: false)
+
+      patch toggle_visibility_admin_product_path(alheio)
+
+      expect(response).to have_http_status(:not_found)
+      expect(alheio.reload).not_to be_hidden_by_admin
+    end
+
+    it "exige login" do
+      product = create(:product, admin: admin)
+      sign_out admin
+
+      patch toggle_visibility_admin_product_path(product)
+
+      expect(response).to redirect_to(new_admin_session_path)
+    end
+  end
+
   describe "GET /admin/products/:id/edit" do
     before { sign_in admin }
 
