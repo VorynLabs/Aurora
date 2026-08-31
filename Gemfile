@@ -59,6 +59,10 @@ group :development, :test do
 
   # Test data factories [https://github.com/thoughtbot/factory_bot_rails]
   gem "factory_bot_rails", "~> 6.4"
+
+  # Browser-driven system specs [https://github.com/teamcapybara/capybara]
+  gem "capybara", "~> 3.40"
+  gem "selenium-webdriver", "~> 4.27"
 end
 
 group :development do

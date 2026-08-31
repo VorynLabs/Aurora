@@ -1,0 +1,18 @@
+<div class="flex flex-wrap items-center justify-between gap-3">
+  <h1 class="text-2xl">Produtos</h1>
+  <p class="text-sm text-clay-text">
+    <%= pluralize(@products.size, "produto") %> no painel
+  </p>
+</div>
+
+<div id="products" class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  <%= render partial: "admin/products/product", collection: @products %>
+</div>
+
+<% if @products.empty? %>
+  <p class="mt-6 text-clay-text">
+    Nenhum produto ainda — cadastre o primeiro.
+  </p>
+<% end %>
+
+<%= render "admin/products/new_product_modal", product: @new_product %>

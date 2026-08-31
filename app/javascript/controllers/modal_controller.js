@@ -4,6 +4,12 @@ import { Controller } from "@hotwired/stimulus"
 // dentro do painel e fechamento pelo Esc — sem reimplementar isso em JS.
 export default class extends Controller {
   static targets = ["dialog"]
+  static values = { open: Boolean }
+
+  // Reabre sozinho quando o servidor devolve o painel com erros de validação.
+  connect() {
+    if (this.openValue) this.open()
+  }
 
   open() {
     this.dialogTarget.showModal()

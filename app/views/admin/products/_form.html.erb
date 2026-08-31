@@ -1,0 +1,63 @@
+<%# locals: product %>
+<%= form_with model: [:admin, product], class: "space-y-5" do |f| %>
+  <% if product.errors.any? %>
+    <div class="rounded-control border border-danger bg-danger/10 px-4 py-3 text-sm text-danger">
+      <p class="font-medium">
+        <%= pluralize(product.errors.count, "problema") %> impediram de salvar:
+      </p>
+      <ul class="mt-1 list-inside list-disc">
+        <% product.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :title, "Título", class: ui_label_classes %>
+    <%= f.text_field :title, class: ui_input_classes(extra: "mt-1") %>
+  </div>
+
+  <div>
+    <%= f.label :description, "Descrição", class: ui_label_classes %>
+    <%= f.text_area :description, rows: 3, class: ui_input_classes(extra: "mt-1") %>
+  </div>
+
+  <div>
+    <%= f.label :category_id, "Categoria", class: ui_label_classes %>
+    <%= f.collection_select :category_id, Category.ordered, :id, :name,
+          { prompt: "Escolha uma categoria" }, class: ui_input_classes(extra: "mt-1") %>
+  </div>
+
+  <%= render "ui/image_field", form: f, current_image: product.image %>
+
+  <div data-controller="nested-variants">
+    <div class="flex items-center justify-between gap-3">
+      <h3 class="font-display text-lg">Variações</h3>
+      <button type="button" data-action="nested-variants#add"
+              class="<%= ui_button_classes(variant: :secondary) %>">
+        Adicionar variação
+      </button>
+    </div>
+
+    <p class="mt-1 text-sm text-clay-text">
+      O estoque e o preço vivem na variação.
+    </p>
+
+    <%# A linha em branco do template só entra na página quando o admin pede. %>
+    <template data-nested-variants-target="template">
+      <%= f.fields_for :variants, Variant.new, child_index: "NEW_RECORD" do |vf| %>
+        <%= render "admin/products/variant_fields", vf: vf %>
+      <% end %>
+    </template>
+
+    <div data-nested-variants-target="list" class="mt-3 space-y-3">
+      <%= f.fields_for :variants do |vf| %>
+        <%= render "admin/products/variant_fields", vf: vf %>
+      <% end %>
+    </div>
+  </div>
+
+  <%= f.submit product.persisted? ? "Salvar alterações" : "Cadastrar produto",
+        class: ui_button_classes(extra: "w-full sm:w-auto") %>
+<% end %>

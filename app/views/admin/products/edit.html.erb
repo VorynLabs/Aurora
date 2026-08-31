@@ -1,0 +1,13 @@
+<%= turbo_frame_tag dom_id(@product) do %>
+  <div class="<%= ui_card_classes(extra: "p-5") %>">
+    <div class="flex items-center justify-between gap-3">
+      <h2 class="font-display text-lg">Editar produto</h2>
+      <%= link_to "Cancelar", admin_root_path, data: { turbo_frame: "_top" },
+            class: ui_button_classes(variant: :text) %>
+    </div>
+
+    <div class="mt-4">
+      <%= render "admin/products/form", product: @product %>
+    </div>
+  </div>
+<% end %>
