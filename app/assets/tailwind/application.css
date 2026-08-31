@@ -1,1 +1,62 @@
 @import "tailwindcss";
+
+/*
+ * Tema Aurora — vinho + nude. Ver specs/SPEC_05_design.md.
+ *
+ * O Tailwind 4 configura pelo CSS: cada token abaixo vira utilitário
+ * (--color-wine gera bg-wine, text-wine, border-wine; --radius-card gera
+ * rounded-card). Prefira sempre o token ao hex solto no ERB.
+ */
+@theme {
+  /* Vinho: sensualidade e maturidade. Base da marca. */
+  --color-wine: #5b1a2e;
+  --color-wine-dark: #3a0e1c;
+  --color-wine-ink: #2b1218;
+
+  /* Nude: deixa a navegação leve e não intimidante. */
+  --color-nude: #f3e1d8;
+  --color-nude-deep: #e4c4b4;
+  --color-cream: #fbf3ee;
+
+  /* Clay: realce quente. Nunca use como cor de texto — reprova em contraste
+     contra qualquer fundo claro da paleta (2.96:1 sobre creme). */
+  --color-clay: #c97b5a;
+  --color-clay-text: #8a5240;
+
+  /* Semânticas. Sobre success e danger use texto creme; sobre warning use
+     wine-ink, porque creme sobre âmbar fica em 3.38:1 e reprova o AA. */
+  --color-success: #3b6d57;
+  --color-warning: #b07a2e;
+  --color-danger: #8a2d2d;
+
+  /* Serifada carrega a voz premium; sans humanista mantém a UI legível. */
+  --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* Raios do SPEC: 8px em controles, 12px em cards. */
+  --radius-control: 0.5rem;
+  --radius-card: 0.75rem;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-cream);
+    color: var(--color-wine-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 500;
+  }
+
+  /* Foco sempre visível, em clay. Vale para todo controle, inclusive links. */
+  :focus-visible {
+    outline: 2px solid var(--color-clay);
+    outline-offset: 2px;
+  }
+}
