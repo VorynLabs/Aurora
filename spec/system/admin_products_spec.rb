@@ -57,6 +57,8 @@ RSpec.describe "Painel de produtos", type: :system do
     end
 
     expect(page).to have_no_selector("dialog[open]")
+    expect(page).to have_content("1 produto no painel")
+    expect(page).to have_no_content("Nenhum produto ainda")
     expect(Product.count).to eq(1)
   end
 
@@ -76,6 +78,7 @@ RSpec.describe "Painel de produtos", type: :system do
 
     visit admin_root_path
     within "##{ActionView::RecordIdentifier.dom_id(product)}" do
+      click_button "Opções de Nome antigo"
       click_link "Editar"
       fill_in "Título", with: "Nome novo"
       click_button "Salvar alterações"

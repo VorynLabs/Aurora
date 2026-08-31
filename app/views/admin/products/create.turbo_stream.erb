@@ -7,3 +7,9 @@
 <%= turbo_stream.replace "new_product_modal" do %>
   <%= render "admin/products/new_product_modal", product: @new_product %>
 <% end %>
+
+<%= turbo_stream.update "products_count" do %>
+  <%= render "admin/products/count", count: current_admin.products.count %>
+<% end %>
+
+<%= turbo_stream.update "products_empty", "" %>

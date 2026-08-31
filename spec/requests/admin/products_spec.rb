@@ -107,6 +107,7 @@ RSpec.describe "Produtos do painel", type: :request do
       expect(response.media_type).to eq("text/vnd.turbo-stream.html")
       expect(response.body).to include('action="prepend" target="products"')
       expect(response.body).to include('action="replace" target="new_product_modal"')
+      expect(response.body).to include('action="update" target="products_count"')
       expect(response.body).to include("Camisola de cetim")
     end
 
@@ -202,6 +203,113 @@ RSpec.describe "Produtos do painel", type: :request do
 
       expect(response).to have_http_status(:not_found)
       expect(alheio.reload.title).not_to eq("Invadido")
+    end
+  end
+
+  describe "PATCH /admin/products/:id/toggle_visibility" do
+    let(:turbo) { { "Accept" => "text/vnd.turbo-stream.html" } }
+
+    before { sign_in admin }
+
+    it "oculta um produto visível" do
+      product = create(:product, admin: admin, hidden_by_admin: false)
+
+      patch toggle_visibility_admin_product_path(product)
+
+      expect(product.reload).to be_hidden_by_admin
+    end
+
+    it "volta a mostrar um produto oculto" do
+      product = create(:product, admin: admin, hidden_by_admin: true)
+
+      patch toggle_visibility_admin_product_path(product)
+
+      expect(product.reload).not_to be_hidden_by_admin
+    end
+
+    it "troca o card e o badge por turbo_stream" do
+      product = create(:product, admin: admin, title: "Camisola", hidden_by_admin: false)
+
+      patch toggle_visibility_admin_product_path(product), headers: turbo
+
+      expect(response.body).to include(%(action="replace" target="#{ActionView::RecordIdentifier.dom_id(product)}"))
+      expect(response.body).to include("Oculto")
+      expect(response.body).to include("Mostrar no catálogo")
+    end
+
+    it "não mexe no estoque nem nas variações" do
+      product = create(:product, admin: admin, variant_quantity: 5)
+
+      expect { patch toggle_visibility_admin_product_path(product) }
+        .not_to change { product.variants.sum(:quantity) }
+    end
+
+    it "não alcança produto de outro admin" do
+      alheio = create(:product, admin: create(:admin), hidden_by_admin: false)
+
+      patch toggle_visibility_admin_product_path(alheio)
+
+      expect(response).to have_http_status(:not_found)
+      expect(alheio.reload).not_to be_hidden_by_admin
+    end
+
+    it "exige login" do
+      product = create(:product, admin: admin)
+      sign_out admin
+
+      patch toggle_visibility_admin_product_path(product)
+
+      expect(response).to redirect_to(new_admin_session_path)
+    end
+  end
+
+  describe "DELETE /admin/products/:id" do
+    let(:turbo) { { "Accept" => "text/vnd.turbo-stream.html" } }
+
+    before { sign_in admin }
+
+    it "apaga o produto e suas variações" do
+      product = create(:product, admin: admin)
+      create(:variant, product: product)
+
+      expect { delete admin_product_path(product) }
+        .to change(Product, :count).by(-1)
+        .and change(Variant, :count).by(-2)
+    end
+
+    it "tira o card da lista por turbo_stream" do
+      product = create(:product, admin: admin)
+
+      delete admin_product_path(product), headers: turbo
+
+      expect(response.body).to include(%(action="remove" target="#{ActionView::RecordIdentifier.dom_id(product)}"))
+      expect(response.body).to include("0 produtos no painel")
+      expect(response.body).to include("Nenhum produto ainda")
+    end
+
+    it "volta para a lista quando o pedido não é turbo" do
+      product = create(:product, admin: admin)
+
+      delete admin_product_path(product)
+
+      expect(response).to redirect_to(admin_root_path)
+    end
+
+    it "não alcança produto de outro admin" do
+      alheio = create(:product, admin: create(:admin))
+
+      expect { delete admin_product_path(alheio) }.not_to change(Product, :count)
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "exige login" do
+      product = create(:product, admin: admin)
+      sign_out admin
+
+      expect { delete admin_product_path(product) }.not_to change(Product, :count)
+
+      expect(response).to redirect_to(new_admin_session_path)
     end
   end
 
