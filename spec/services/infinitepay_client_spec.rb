@@ -114,4 +114,101 @@ RSpec.describe InfinitepayClient do
       end
     end
   end
+
+  describe "#payment_check" do
+    let(:check_url) { "https://api.checkout.infinitepay.io/payment_check" }
+
+    let(:webhook_payload) do
+      { "transaction_nsu" => "UUID-da-transacao", "invoice_slug" => "abc123",
+        "amount" => 9_980, "paid_amount" => 10_050 }
+    end
+
+    def stub_check(status: 200, body: { "success" => true, "paid" => true, "amount" => 9_980 })
+      stub_request(:post, check_url).to_return(
+        status: status, body: body.to_json, headers: { "Content-Type" => "application/json" }
+      )
+    end
+
+    it "devolve a resposta da InfinitePay" do
+      stub_check
+
+      expect(client.payment_check(order, webhook_payload))
+        .to include("paid" => true, "amount" => 9_980)
+    end
+
+    it "identifica a transação por handle, order_nsu, transaction_nsu e slug" do
+      stub_check
+
+      client.payment_check(order, webhook_payload)
+
+      expect(WebMock).to have_requested(:post, check_url).with(
+        body: { handle: "aurora_test", order_nsu: "ord_ab12cd34ef56",
+                transaction_nsu: "UUID-da-transacao", slug: "abc123" }
+      )
+    end
+
+    it "aceita chaves símbolo no payload" do
+      stub_check
+
+      client.payment_check(order, webhook_payload.symbolize_keys)
+
+      expect(WebMock).to have_requested(:post, check_url).with { |request|
+        JSON.parse(request.body)["transaction_nsu"] == "UUID-da-transacao"
+      }
+    end
+
+    it "consulta só pelo pedido quando não há webhook em mãos (conciliação)" do
+      order.update!(transaction_id: "trx-salva-no-pedido")
+      stub_check
+
+      client.payment_check(order)
+
+      expect(WebMock).to have_requested(:post, check_url).with(
+        body: { handle: "aurora_test", order_nsu: "ord_ab12cd34ef56",
+                transaction_nsu: "trx-salva-no-pedido" }
+      )
+    end
+
+    it "omite as chaves que não tem em vez de mandar null" do
+      stub_check
+
+      client.payment_check(order)
+
+      expect(WebMock).to have_requested(:post, check_url).with(
+        body: { handle: "aurora_test", order_nsu: "ord_ab12cd34ef56" }
+      )
+    end
+
+    describe "quando dá errado" do
+      it "levanta erro em resposta 4xx" do
+        stub_check(status: 422, body: { "error" => "transação inválida" })
+
+        expect { client.payment_check(order, webhook_payload) }
+          .to raise_error(described_class::Error, /422/)
+      end
+
+      it "levanta erro em resposta 5xx" do
+        stub_check(status: 500, body: {})
+
+        expect { client.payment_check(order, webhook_payload) }
+          .to raise_error(described_class::Error)
+      end
+
+      it "levanta erro quando a resposta não é JSON" do
+        stub_request(:post, check_url).to_return(status: 200, body: "pong")
+
+        expect { client.payment_check(order, webhook_payload) }
+          .to raise_error(described_class::Error, /ilegível/)
+      end
+
+      it "recusa rodar sem handle configurado, antes de tocar na rede" do
+        sem_handle = described_class.new(handle: "")
+
+        expect { sem_handle.payment_check(order, webhook_payload) }
+          .to raise_error(ArgumentError, /handle/)
+
+        expect(WebMock).not_to have_requested(:post, check_url)
+      end
+    end
+  end
 end
