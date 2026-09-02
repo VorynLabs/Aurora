@@ -15,12 +15,12 @@ RSpec.describe Payments::CreateCheckout do
   def checkout(cart) = described_class.new(cart, client: client).call
 
   describe "o pedido criado" do
-    it "nasce pendente com a reserva vencendo em 30 minutos" do
+    it "nasce pendente com a reserva vencendo em 7 minutos" do
       result = checkout(cart_with([variant, 2]))
 
       expect(result).to be_ok
       expect(result.order).to be_pending
-      expect(result.order.reserved_until).to be_within(5.seconds).of(30.minutes.from_now)
+      expect(result.order.reserved_until).to be_within(5.seconds).of(7.minutes.from_now)
     end
 
     it "gera o order_nsu que a conciliação vai usar" do

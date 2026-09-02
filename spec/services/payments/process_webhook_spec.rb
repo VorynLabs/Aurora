@@ -267,6 +267,34 @@ RSpec.describe Payments::ProcessWebhook do
       expect(variant.reload.quantity).to eq(3)
     end
 
+    it "não marca conflito quando ainda há estoque" do
+      order.update!(status: :expired, reserved_until: 1.hour.ago)
+      variant.update!(reserved: 0)
+      stub_check
+
+      process
+
+      expect(order.reload).to be_paid
+      expect(order.stock_conflict).to be(false)
+    end
+
+    it "marca o pedido para revisão quando pagou e não há o que entregar" do
+      # O cenário inteiro: reserva expira, outra pessoa leva a última unidade,
+      # e só então chega o webhook do pagamento anterior.
+      order.update!(status: :expired, reserved_until: 1.hour.ago)
+      variant.update!(quantity: 0, reserved: 0)
+      stub_check
+      allow(Rails.logger).to receive(:error)
+
+      expect(process).to include(success: true, reason: :processed)
+
+      expect(order.reload).to be_paid
+      expect(order.stock_conflict).to be(true)
+      expect(Order.needs_review).to contain_exactly(order)
+      expect(variant.reload.quantity).to be_zero
+      expect(Rails.logger).to have_received(:error).with(/pago sem estoque suficiente/)
+    end
+
     it "não deixa o estoque ficar negativo quando as unidades já foram vendidas" do
       order.update!(status: :expired, reserved_until: 1.hour.ago)
       variant.update!(quantity: 1, reserved: 0)

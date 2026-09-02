@@ -64,8 +64,12 @@ module Payments
         )
       end
 
+      # `stock_conflict` grava o que o log sozinho não sustenta: o pedido está
+      # pago e sem produto para entregar, e alguém precisa decidir entre
+      # reembolso e reposição. Order.needs_review é essa fila.
       order.update!(status: :paid, paid_at: Time.current,
-                    transaction_id: transaction_id_for(order))
+                    transaction_id: transaction_id_for(order),
+                    stock_conflict: oversold.any?)
 
       oversold
     end

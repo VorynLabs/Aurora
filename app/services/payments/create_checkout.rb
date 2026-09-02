@@ -7,7 +7,12 @@ module Payments
   class CreateCheckout
     Result = Struct.new(:ok?, :order, :payment_url, :error)
 
-    RESERVATION_WINDOW = 30.minutes
+    # Sete minutos: tempo de pagar um Pix sem segurar a unidade de quem está
+    # olhando o catálogo agora. Anda junto com o ExpireReservationsJob, que roda
+    # a cada 2 min — a indisponibilidade real é a soma dos dois.
+    #
+    # O valor vive no Order porque a conciliação também depende dele.
+    RESERVATION_WINDOW = Order::RESERVATION_WINDOW
 
     class Empty < StandardError; end
     class OutOfStock < StandardError; end
