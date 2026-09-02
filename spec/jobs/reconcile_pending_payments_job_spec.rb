@@ -5,9 +5,9 @@ RSpec.describe ReconcilePendingPaymentsJob do
 
   let(:variant) { create(:variant, quantity: 5, reserved: 2, price_cents: 4_990) }
 
-  # Reserva vencendo em 1 minuto: dentro da janela de conciliação e ainda
-  # pendente, que é o pedido que este job existe para resgatar.
-  def pending_order(status: :pending, reserved_until: 1.minute.from_now, **attrs)
+  # Reserva já vencida: é a partir daí que a conciliação olha. Antes disso o
+  # cliente ainda está pagando e o estoque segue reservado.
+  def pending_order(status: :pending, reserved_until: 1.minute.ago, **attrs)
     create(:order, status: status, reserved_until: reserved_until, total_cents: 9_980,
            payment_link_url: "https://checkout.infinitepay.com.br/aurora_test?lenc=abc",
            **attrs).tap do |order|
@@ -94,13 +94,31 @@ RSpec.describe ReconcilePendingPaymentsJob do
       expect(WebMock).not_to have_requested(:post, check_url)
     end
 
-    it "não consulta pendente com a reserva ainda longe de vencer" do
-      pending_order(reserved_until: 25.minutes.from_now)
+    it "não consulta pendente recém-criado, com a reserva em pé" do
+      pending_order(reserved_until: Order::RESERVATION_WINDOW.from_now)
       stub_check
 
       described_class.perform_now
 
       expect(WebMock).not_to have_requested(:post, check_url)
+    end
+
+    it "não consulta pendente no meio da janela de reserva" do
+      pending_order(reserved_until: 2.minutes.from_now)
+      stub_check
+
+      described_class.perform_now
+
+      expect(WebMock).not_to have_requested(:post, check_url)
+    end
+
+    it "consulta assim que a janela de reserva acaba" do
+      pending_order(reserved_until: 1.second.ago)
+      stub_check(paid: false)
+
+      described_class.perform_now
+
+      expect(WebMock).to have_requested(:post, check_url)
     end
   end
 
@@ -116,13 +134,14 @@ RSpec.describe ReconcilePendingPaymentsJob do
       expect(order.reload.paid_at).to be_within(1.second).of(1.hour.ago)
     end
 
-    it "ignora pedido já expirado" do
-      pending_order(status: :expired, reserved_until: 1.hour.ago)
+    it "não baixa de novo um pedido que já estava pago" do
+      order = pending_order(status: :paid, paid_at: 2.hours.ago)
       stub_check
 
       described_class.perform_now
 
-      expect(WebMock).not_to have_requested(:post, check_url)
+      expect(variant.reload).to have_attributes(quantity: 5, reserved: 2)
+      expect(order.reload.paid_at).to be_within(1.second).of(2.hours.ago)
     end
 
     it "rodar duas vezes não baixa o estoque duas vezes" do
@@ -153,7 +172,7 @@ RSpec.describe ReconcilePendingPaymentsJob do
       allow(Rails.logger).to receive(:error)
 
       outra = create(:variant, quantity: 3, reserved: 1, price_cents: 1_000)
-      ok = create(:order, status: :pending, reserved_until: 1.minute.from_now,
+      ok = create(:order, status: :pending, reserved_until: 1.minute.ago,
                   total_cents: 1_000, payment_link_url: "https://checkout.test/ok")
       create(:order_item, order: ok, variant: outra, quantity: 1, price_cents: 1_000)
 
@@ -170,6 +189,64 @@ RSpec.describe ReconcilePendingPaymentsJob do
       expect(quebrado.reload).to be_pending
       expect(ok.reload).to be_paid
       expect(outra.reload).to have_attributes(quantity: 2, reserved: 0)
+    end
+  end
+
+  # O buraco que este scope fecha: com reserva de 7 min e a expiração rodando a
+  # cada 2, o pedido vira `expired` antes de qualquer conciliação alcançá-lo.
+  describe "pedidos expirados" do
+    it "liquida o expirado recente que consta pago" do
+      order = pending_order(status: :expired, reserved_until: 20.minutes.ago)
+      variant.update!(reserved: 0)
+      stub_check
+
+      described_class.perform_now
+
+      expect(order.reload).to be_paid
+      expect(variant.reload).to have_attributes(quantity: 3, reserved: 0)
+    end
+
+    it "consulta o expirado no limite da janela de conciliação" do
+      pending_order(status: :expired, reserved_until: (Order::RECONCILIATION_WINDOW - 1.minute).ago)
+      stub_check(paid: false)
+
+      described_class.perform_now
+
+      expect(WebMock).to have_requested(:post, check_url)
+    end
+
+    it "ignora o expirado velho demais" do
+      order = pending_order(status: :expired,
+                            reserved_until: (Order::RECONCILIATION_WINDOW + 1.minute).ago)
+      stub_check
+
+      described_class.perform_now
+
+      expect(WebMock).not_to have_requested(:post, check_url)
+      expect(order.reload).to be_expired
+    end
+
+    it "deixa expirado que não consta pago como está" do
+      order = pending_order(status: :expired, reserved_until: 20.minutes.ago)
+      stub_check(paid: false)
+
+      described_class.perform_now
+
+      expect(order.reload).to be_expired
+      expect(variant.reload.quantity).to eq(5)
+    end
+
+    it "marca conflito quando o pagamento chega e o estoque já foi" do
+      order = pending_order(status: :expired, reserved_until: 20.minutes.ago)
+      variant.update!(quantity: 0, reserved: 0)
+      stub_check
+      allow(Rails.logger).to receive(:error)
+
+      described_class.perform_now
+
+      expect(order.reload).to be_paid
+      expect(order.stock_conflict).to be(true)
+      expect(variant.reload.quantity).to be_zero
     end
   end
 end

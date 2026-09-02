@@ -4,6 +4,11 @@
 # fora, retentativa perdida. Sem isso, um pedido pago ficaria pendente até
 # expirar e o estoque nunca baixaria.
 #
+# Alcança pedido expirado, não só pendente: com reserva de 7 minutos e a
+# expiração rodando a cada 2, o pedido vira `expired` antes de qualquer job de
+# conciliação passar por ele. Ficar só nos pendentes deixaria de fora
+# justamente o pagamento que se perdeu. Ver Order.awaiting_reconciliation.
+#
 # A baixa é a mesma do webhook (Payments::SettlePaidOrder), então webhook
 # atrasado e conciliação não se atropelam: quem chegar primeiro paga o pedido,
 # o outro vira no-op.
