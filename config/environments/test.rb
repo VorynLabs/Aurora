@@ -65,4 +65,10 @@ Rails.application.configure do
   # Enqueue jobs into an in-memory queue so specs can assert on them without
   # running a worker.
   config.active_job.queue_adapter = :test
+
+  # Gateway de pagamento: valores fixos para os specs não dependerem de
+  # credentials nem de variáveis de ambiente.
+  config.x.infinitepay.handle = "aurora_test"
+  config.x.infinitepay.base_url = "https://api.checkout.infinitepay.io"
+  config.x.app.base_url = "https://aurora.test"
 end
