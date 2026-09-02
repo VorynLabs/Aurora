@@ -6,6 +6,9 @@ class InfinitepayClient
   SUCCESS_PATH = "/checkout/success"
   WEBHOOK_PATH = "/webhooks/infinitepay"
 
+  # Página de "pagamento simulado" do modo fake, no lugar do checkout deles.
+  FAKE_CHECKOUT_PATH = "/dev/fake_checkout"
+
   TIMEOUT = 10
   OPEN_TIMEOUT = 5
 
@@ -16,19 +19,51 @@ class InfinitepayClient
   CHECK_TIMEOUT = 3
   CHECK_OPEN_TIMEOUT = 2
 
-  def initialize(handle: nil, base_url: nil, app_base_url: nil)
+  # Modo fake: desenvolver e testar o fluxo de pagamento sem conta na
+  # InfinitePay e sem tocar na rede.
+  #
+  # Em produção é sempre false, mesmo com INFINITEPAY_FAKE=true no ambiente.
+  # Um gateway simulado em produção daria pedido pago sem dinheiro entrando —
+  # não é decisão que uma variável de ambiente deva poder tomar sozinha.
+  #
+  # Fora de produção a flag manda. Sem flag, liga em development (é onde
+  # serve) e fica desligado em test, onde a suíte exercita o caminho real com
+  # o HTTP stubbado.
+  # Lista explícita em vez de ActiveModel::Type::Boolean: aquele trata tudo que
+  # não é "false"/"0"/"" como verdadeiro, e um INFINITEPAY_FAKE=talvez ligaria
+  # o gateway simulado. Para esta flag, o que não é um "sim" claro é um não.
+  FAKE_FLAG_ON = %w[true 1 yes on].freeze
+
+  def self.fake_enabled?(env: Rails.env, flag: ENV["INFINITEPAY_FAKE"])
+    return false if env.production?
+    return env.development? if flag.blank?
+
+    FAKE_FLAG_ON.include?(flag.to_s.strip.downcase)
+  end
+
+  def initialize(handle: nil, base_url: nil, app_base_url: nil, fake: nil)
     settings = Rails.configuration.x
 
     @handle = handle || settings.infinitepay.handle
     @base_url = base_url || settings.infinitepay.base_url
     @app_base_url = app_base_url || settings.app.base_url
+    # Resolvido aqui, e não num initializer: constante do app não é
+    # autocarregável durante o boot.
+    @fake = fake.nil? ? self.class.fake_enabled? : fake
   end
+
+  def fake? = !!@fake
 
   # Cria o link de pagamento do pedido e devolve a URL para onde mandar o
   # cliente. Preços em centavos, como o resto do sistema.
   def create_link(order)
-    raise ArgumentError, "handle da InfinitePay não configurado" if @handle.blank?
     raise ArgumentError, "pedido sem itens" if order.order_items.empty?
+
+    # Antes da checagem de handle: em development não há credencial nenhuma, e
+    # é esse o caso que o modo fake existe para destravar.
+    return fake_link(order) if fake?
+
+    raise ArgumentError, "handle da InfinitePay não configurado" if @handle.blank?
 
     response = connection.post("/links", link_payload(order))
 
@@ -47,8 +82,11 @@ class InfinitepayClient
   # O payload do webhook é opcional — o job de conciliação consulta só pelo
   # order_nsu, sem ter recebido webhook nenhum.
   def payment_check(order, payload = {})
-    raise ArgumentError, "handle da InfinitePay não configurado" if @handle.blank?
     raise ArgumentError, "pedido sem order_nsu" if order.order_nsu.blank?
+
+    return fake_check(order) if fake?
+
+    raise ArgumentError, "handle da InfinitePay não configurado" if @handle.blank?
 
     response = connection.post("/payment_check") do |request|
       request.body = check_payload(order, payload)
@@ -63,6 +101,25 @@ class InfinitepayClient
   end
 
   private
+
+  # URL previsível, no próprio app: abre a página de pagamento simulado em vez
+  # do checkout da InfinitePay.
+  def fake_link(order)
+    public_url("#{FAKE_CHECKOUT_PATH}?order_nsu=#{CGI.escape(order.order_nsu)}")
+  end
+
+  # Mesmo formato do payment_check real (SPEC 04). O valor é o total do pedido
+  # para o amount_matches? do webhook aprovar.
+  def fake_check(order)
+    {
+      "success" => true,
+      "paid" => true,
+      "amount" => order.total_cents,
+      "paid_amount" => order.total_cents,
+      "installments" => 1,
+      "capture_method" => "pix"
+    }
+  end
 
   def link_payload(order)
     {
