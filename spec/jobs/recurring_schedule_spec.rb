@@ -9,9 +9,9 @@ RSpec.describe "Agendamento recorrente" do
     describe env do
       let(:tasks) { schedule.fetch(env) }
 
-      it "expira reservas a cada 5 minutos" do
+      it "expira reservas a cada 2 minutos" do
         expect(tasks["expire_reservations"])
-          .to include("class" => "ExpireReservationsJob", "schedule" => "every 5 minutes")
+          .to include("class" => "ExpireReservationsJob", "schedule" => "every 2 minutes")
       end
 
       it "concilia pagamentos pendentes a cada 10 minutos" do

@@ -69,6 +69,34 @@ RSpec.describe Payments::SettlePaidOrder do
       expect(variant.reload).to have_attributes(quantity: 3, reserved: 0)
     end
 
+    it "não marca conflito quando ainda há estoque para entregar" do
+      settle
+
+      expect(order.reload.stock_conflict).to be(false)
+      expect(Order.needs_review).to be_empty
+    end
+
+    it "marca conflito de estoque no pedido, não só no log" do
+      variant.update!(quantity: 0)
+      allow(Rails.logger).to receive(:error)
+
+      settle
+
+      expect(order.reload).to be_paid
+      expect(order.stock_conflict).to be(true)
+      expect(Order.needs_review).to contain_exactly(order)
+    end
+
+    it "marca conflito quando o estoque cobre só parte do pedido" do
+      variant.update!(quantity: 1)
+      allow(Rails.logger).to receive(:error)
+
+      settle
+
+      expect(order.reload.stock_conflict).to be(true)
+      expect(variant.reload.quantity).to be_zero
+    end
+
     it "para o estoque no zero em vez de ficar negativo" do
       variant.update!(quantity: 1)
       allow(Rails.logger).to receive(:error)
@@ -88,6 +116,12 @@ RSpec.describe Payments::SettlePaidOrder do
       expect(Rails.logger).to have_received(:error)
         .with(/#{order.order_nsu}.*pago sem estoque suficiente/)
     end
+  end
+
+  it "não marca conflito numa baixa comum" do
+    settle
+
+    expect(order.reload.stock_conflict).to be(false)
   end
 
   it "não deixa reserved negativo quando a reserva já tinha sido devolvida" do

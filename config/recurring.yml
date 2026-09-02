@@ -11,10 +11,12 @@
 
 development:
   # Pagamento (SPEC 04). A expiração roda mais rápido que a conciliação: é ela
-  # que devolve estoque parado, e estoque parado é venda perdida.
+  # que devolve estoque parado, e estoque parado é venda perdida. A cada 2 min
+  # para acompanhar a reserva de 7 min do checkout — o que trava a unidade é a
+  # soma dos dois, não só a reserva.
   expire_reservations:
     class: ExpireReservationsJob
-    schedule: every 5 minutes
+    schedule: every 2 minutes
   reconcile_pending_payments:
     class: ReconcilePendingPaymentsJob
     schedule: every 10 minutes
@@ -24,10 +26,12 @@ production:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12
   # Pagamento (SPEC 04). A expiração roda mais rápido que a conciliação: é ela
-  # que devolve estoque parado, e estoque parado é venda perdida.
+  # que devolve estoque parado, e estoque parado é venda perdida. A cada 2 min
+  # para acompanhar a reserva de 7 min do checkout — o que trava a unidade é a
+  # soma dos dois, não só a reserva.
   expire_reservations:
     class: ExpireReservationsJob
-    schedule: every 5 minutes
+    schedule: every 2 minutes
   reconcile_pending_payments:
     class: ReconcilePendingPaymentsJob
     schedule: every 10 minutes

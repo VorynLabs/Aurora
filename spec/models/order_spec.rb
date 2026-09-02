@@ -65,4 +65,20 @@ RSpec.describe Order, type: :model do
       expect { order.destroy }.to change(OrderItem, :count).by(-1)
     end
   end
+
+  describe ".needs_review" do
+    it "traz só os pedidos pagos sem estoque para entregar" do
+      conflito = create(:order, status: :paid, stock_conflict: true)
+      create(:order, status: :paid)
+      create(:order, status: :pending)
+
+      expect(described_class.needs_review).to contain_exactly(conflito)
+    end
+
+    it "nasce vazia: pedido comum não tem conflito" do
+      create(:order)
+
+      expect(described_class.needs_review).to be_empty
+    end
+  end
 end

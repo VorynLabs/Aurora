@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_09_01_223000) do
+ActiveRecord::Schema[7.1].define(version: 2026_09_02_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -83,8 +83,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_09_01_223000) do
     t.datetime "paid_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "stock_conflict", default: false, null: false
     t.index ["order_nsu"], name: "index_orders_on_order_nsu", unique: true
     t.index ["status"], name: "index_orders_on_status"
+    t.index ["stock_conflict"], name: "index_orders_on_stock_conflict", where: "stock_conflict"
   end
 
   create_table "products", force: :cascade do |t|

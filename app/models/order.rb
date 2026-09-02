@@ -14,6 +14,10 @@ class Order < ApplicationRecord
   # que dá para conciliar antes do ExpireReservationsJob devolver o estoque.
   scope :awaiting_reconciliation, ->(grace = 5.minutes) { pending.where(reserved_until: ..grace.from_now) }
 
+  # Pagos sem estoque físico para entregar. Precisam de decisão humana:
+  # reembolsar ou repor. Ver Payments::SettlePaidOrder.
+  scope :needs_review, -> { where(stock_conflict: true) }
+
   private
 
   def generate_order_nsu = self.order_nsu ||= "ord_#{SecureRandom.hex(12)}"
