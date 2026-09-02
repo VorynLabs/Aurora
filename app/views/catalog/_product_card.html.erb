@@ -1,5 +1,10 @@
 <%# Card público: imagem, nome e o menor preço entre as variações disponíveis. %>
-<%= link_to product_path(product_card), class: "block h-full" do %>
+<%# turbo_frame "_top": o card mora dentro do turbo_frame "catalog-grid" que o
+    filtro e a busca atualizam. Sem isto, Turbo procuraria esse mesmo frame na
+    página do produto, não acharia, e escreveria "Content missing" na grade em
+    vez de navegar. %>
+<%= link_to product_path(product_card), data: { turbo_frame: "_top" },
+      class: "block h-full" do %>
 <article class="<%= ui_card_classes(extra: "flex h-full flex-col transition hover:shadow-lg") %>">
   <div class="aspect-[4/5] w-full overflow-hidden rounded-t-card">
     <% if product_card.image.attached? %>
