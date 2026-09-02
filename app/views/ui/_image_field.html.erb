@@ -1,20 +1,35 @@
-<%# Preview da imagem atual sempre visível, com o botão de troca abaixo. No
-    mobile o preview aparece grande — nunca só o botão.
-    locals: form, attribute (padrão :image), current_image (anexo, opcional) %>
+<%# Campo de imagem com preview sempre visível (SPEC_05): no mobile o preview
+    aparece grande, nunca só o botão.
+
+    locals:
+      form      — form builder
+      attribute — nome do anexo (padrão :image)
+
+    Três estados, decididos por `attached?`:
+      registro novo, sem imagem      → placeholder + "Escolher imagem"
+      registro salvo, sem imagem     → placeholder + "Escolher imagem"
+      registro salvo, com imagem     → preview da imagem + "Trocar imagem" %>
+
 <% attribute = local_assigns.fetch(:attribute, :image) %>
-<% attached = local_assigns[:current_image].present? && current_image.attached? %>
+<% attachment = ui_image_attachment(form.object, attribute) %>
+
+<%# A URL só existe para anexo de registro salvo. Um registro novo que já tem
+    arquivo em memória — o formulário reexibido depois de um erro de validação —
+    responde attached? true, mas não tem signed_id ainda, e pedir um levanta
+    "Cannot get a signed_id for a new record". Sem URL, mostramos o placeholder. %>
+<% preview_url = url_for(attachment) if attachment&.attached? && attachment.record.persisted? %>
 
 <div data-controller="image-preview">
   <span class="<%= ui_label_classes %>">Imagem</span>
 
   <div class="mt-1 overflow-hidden rounded-card border border-nude-deep bg-white">
-    <img data-image-preview-target="image"
-         src="<%= attached ? url_for(current_image) : "" %>"
-         <%= "hidden" unless attached %>
-         alt="Prévia da imagem do produto"
-         class="aspect-[4/3] w-full object-cover">
+    <%= tag.img src: preview_url,
+                hidden: preview_url.nil?,
+                alt: "Prévia da imagem do produto",
+                class: "aspect-[4/3] w-full object-cover",
+                data: { image_preview_target: "image" } %>
 
-    <% unless attached %>
+    <% if preview_url.nil? %>
       <div data-image-preview-target="placeholder">
         <%= render "ui/image_placeholder", extra: "aspect-[4/3] w-full" %>
       </div>
@@ -22,7 +37,7 @@
   </div>
 
   <label class="<%= ui_button_classes(variant: :secondary, extra: "mt-3 w-full cursor-pointer sm:w-auto") %>">
-    <%= attached ? "Trocar imagem" : "Escolher imagem" %>
+    <%= preview_url ? "Trocar imagem" : "Escolher imagem" %>
     <%= form.file_field attribute, class: "sr-only", accept: "image/*",
           data: { image_preview_target: "input", action: "image-preview#preview" } %>
   </label>
