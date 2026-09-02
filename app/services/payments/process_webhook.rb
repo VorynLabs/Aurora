@@ -5,6 +5,8 @@ module Payments
   #
   # Devolve um hash porque o controller responde JSON direto a partir dele.
   class ProcessWebhook
+    include AmountMatching
+
     PROVIDER = "infinitepay".freeze
 
     def initialize(payload, client: InfinitepayClient.new)
@@ -78,14 +80,6 @@ module Payments
       event.update!(status: :failed)
       Rails.logger.error("[Payments::ProcessWebhook] payment_check falhou: #{e.message}")
       failure("não foi possível confirmar o pagamento agora")
-    end
-
-    # Tolera juros de parcelamento: o cliente pode ter pago mais que o pedido
-    # (`paid_amount` > `amount`), e isso é uma venda válida. O que não vale é
-    # pagar menos.
-    def amount_matches?(order, check)
-      check["amount"].to_i >= order.total_cents ||
-        check["paid_amount"].to_i >= order.total_cents
     end
 
     def already_paid(event)
