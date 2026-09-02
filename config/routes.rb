@@ -33,6 +33,10 @@ Rails.application.routes.draw do
   post "checkout",         to: "checkout#create"
   get  "checkout/success", to: "checkout#success", as: :checkout_success
 
+  # Webhook da InfinitePay (passo 6 do SPEC 04). Server-to-server: sem CSRF,
+  # sem sessão. É o único caminho que dá baixa em estoque.
+  post "webhooks/infinitepay", to: "webhooks/infinitepay#create"
+
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
