@@ -71,4 +71,25 @@ RSpec.describe "Catálogo", type: :system do
     expect(page).to have_content("Camisola de cetim")
     expect(page).to have_content("Cinta-liga")
   end
+
+  # Regressão: o card mora dentro do turbo_frame "catalog-grid". Sem sair do
+  # frame, Turbo escrevia "Content missing" na grade e a URL ficava em "/".
+  it "abre o detalhe do produto ao clicar no card" do
+    visit root_path
+
+    click_link "Camisola de cetim"
+
+    expect(page).to have_current_path(product_path(camisola))
+    expect(page).to have_css("h1", text: "Camisola de cetim")
+    expect(page).not_to have_content("Content missing")
+  end
+
+  it "abre o detalhe de um produto sem imagem" do
+    visit root_path
+
+    click_link "Cinta-liga"
+
+    expect(page).to have_current_path(product_path(cinta))
+    expect(page).to have_css("[aria-label='Produto sem imagem']")
+  end
 end
