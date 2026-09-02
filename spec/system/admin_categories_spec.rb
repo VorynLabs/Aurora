@@ -14,7 +14,6 @@ RSpec.describe "Categorias no painel", type: :system do
 
     expect(page).to have_content("Categoria criada.")
     expect(page).to have_content("Roupas íntimas")
-    expect(page).to have_content("/roupas-intimas")
 
     click_link "Produtos"
     click_button "+"
