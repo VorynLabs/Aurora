@@ -10,6 +10,10 @@ class Order < ApplicationRecord
 
   scope :stale_pending, -> { pending.where("reserved_until < ?", Time.current) }
 
+  # Pendentes cuja reserva já venceu ou está por vencer: é a última janela em
+  # que dá para conciliar antes do ExpireReservationsJob devolver o estoque.
+  scope :awaiting_reconciliation, ->(grace = 5.minutes) { pending.where(reserved_until: ..grace.from_now) }
+
   private
 
   def generate_order_nsu = self.order_nsu ||= "ord_#{SecureRandom.hex(12)}"
