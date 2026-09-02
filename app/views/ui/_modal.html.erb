@@ -18,8 +18,11 @@
           data-action="click->modal#closeOnBackdrop"
           id="<%= dialog_id %>"
           aria-labelledby="<%= dialog_id %>-title"
-          class="w-[min(32rem,calc(100vw-2rem))] rounded-card border border-nude-deep bg-white p-0
-                 text-wine-ink backdrop:bg-wine-ink/50">
+          <%# m-auto centraliza: o <dialog> modal nasce com inset 0 e conta com o
+              margin auto do user-agent para se centrar, e o preflight do
+              Tailwind zera margem em tudo — sem isto ele encosta no canto. %>
+          class="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-card border border-nude-deep
+                 bg-white p-0 text-wine-ink backdrop:bg-wine-ink/50">
     <header class="flex items-center justify-between gap-4 border-b border-nude-deep px-5 py-4">
       <h2 id="<%= dialog_id %>-title" class="text-lg"><%= title %></h2>
 
