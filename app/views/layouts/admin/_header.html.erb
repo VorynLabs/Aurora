@@ -5,6 +5,11 @@
       Aurora <span class="text-nude-deep">· estoque</span>
     <% end %>
 
+    <nav class="flex items-center gap-4 text-sm">
+      <%= link_to "Produtos", admin_root_path, class: "text-nude hover:text-nude-deep" %>
+      <%= link_to "Categorias", admin_categories_path, class: "text-nude hover:text-nude-deep" %>
+    </nav>
+
     <div class="flex items-center gap-3 text-sm">
       <span class="hidden text-nude-deep sm:inline"><%= current_admin.email %></span>
       <%= button_to "Sair", destroy_admin_session_path, method: :delete,

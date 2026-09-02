@@ -66,6 +66,27 @@ RSpec.describe "Produtos do painel", type: :request do
     end
   end
 
+  describe "GET /admin/products/new sem categoria nenhuma" do
+    before { sign_in admin }
+
+    it "aponta o caminho em vez de mostrar um select vazio" do
+      get new_admin_product_path
+
+      expect(response.body).to include("Nenhuma categoria cadastrada")
+      expect(response.body).to include(new_admin_category_path)
+      expect(response.body).not_to include("Escolha uma categoria")
+    end
+
+    it "mostra o select assim que existe uma categoria" do
+      create(:category, name: "Roupas")
+
+      get new_admin_product_path
+
+      expect(response.body).to include("Escolha uma categoria")
+      expect(response.body).not_to include("Nenhuma categoria cadastrada")
+    end
+  end
+
   describe "POST /admin/products" do
     let(:category) { create(:category) }
     let(:turbo) { { "Accept" => "text/vnd.turbo-stream.html" } }

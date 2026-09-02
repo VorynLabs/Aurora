@@ -25,8 +25,24 @@
 
   <div>
     <%= f.label :category_id, "Categoria", class: ui_label_classes %>
-    <%= f.collection_select :category_id, Category.ordered, :id, :name,
-          { prompt: "Escolha uma categoria" }, class: ui_input_classes(extra: "mt-1") %>
+
+    <%# Sem categoria nenhuma, o select seria um beco sem saída: nada para
+        escolher e nada indicando o caminho. %>
+    <% categories = Category.ordered %>
+    <% if categories.any? %>
+      <%= f.collection_select :category_id, categories, :id, :name,
+            { prompt: "Escolha uma categoria" }, class: ui_input_classes(extra: "mt-1") %>
+    <% else %>
+      <p class="mt-1 rounded-control border border-nude-deep bg-nude/40 px-3 py-2 text-sm text-clay-text">
+        Nenhuma categoria cadastrada.
+        <%# turbo_frame "_top": o formulário mora dentro de um turbo_frame no
+            modal, e sem isto a página de categoria seria carregada lá dentro. %>
+        <%= link_to "Crie a primeira", new_admin_category_path,
+              data: { turbo_frame: "_top" },
+              class: "text-wine underline underline-offset-4" %>
+        para poder salvar um produto.
+      </p>
+    <% end %>
   </div>
 
   <%= render "ui/image_field", form: f %>

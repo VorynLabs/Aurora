@@ -1,0 +1,39 @@
+<div class="flex flex-wrap items-center justify-between gap-3">
+  <h1 class="text-2xl">Categorias</h1>
+
+  <%= link_to "Nova categoria", new_admin_category_path, class: ui_button_classes %>
+</div>
+
+<% if @categories.empty? %>
+  <p class="mt-6 text-clay-text">
+    Nenhuma categoria ainda — crie a primeira para poder cadastrar produtos.
+  </p>
+<% else %>
+  <ul class="mt-6 space-y-3">
+    <% @categories.each do |category| %>
+      <li id="<%= dom_id(category) %>" class="<%= ui_card_classes(extra: 'p-4') %>">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="font-display text-lg text-wine-ink"><%= category.name %></p>
+            <p class="text-sm text-clay-text">/<%= category.slug %></p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <%= render "ui/badge",
+                  label: pluralize(category.products_count, "produto"),
+                  tone: category.products_count.zero? ? :neutral : :accent %>
+
+            <%= link_to "Editar", edit_admin_category_path(category),
+                  class: ui_button_classes(variant: :secondary) %>
+
+            <%# Categoria com produtos não some: o model barra, e o controller
+                explica o que fazer. A confirmação é para o caso vazio. %>
+            <%= button_to "Remover", admin_category_path(category), method: :delete,
+                  form: { data: { turbo_confirm: "Remover #{category.name}?" } },
+                  class: ui_button_classes(variant: :text, extra: "text-danger") %>
+          </div>
+        </div>
+      </li>
+    <% end %>
+  </ul>
+<% end %>

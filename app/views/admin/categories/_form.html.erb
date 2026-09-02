@@ -1,0 +1,31 @@
+<%# locals: category %>
+<%= form_with model: [:admin, category], class: "space-y-5" do |f| %>
+  <% if category.errors.any? %>
+    <div class="rounded-control border border-danger bg-danger/10 px-4 py-3 text-sm text-danger">
+      <p class="font-medium">
+        <%= pluralize(category.errors.count, "problema") %> impediram de salvar:
+      </p>
+      <ul class="mt-1 list-inside list-disc">
+        <% category.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :name, "Nome", class: ui_label_classes %>
+    <%= f.text_field :name, autofocus: true,
+          class: ui_input_classes(invalid: category.errors[:name].any?, extra: "mt-1") %>
+    <p class="mt-1 text-sm text-clay-text">
+      O endereço da categoria no catálogo sai do nome, sozinho.
+    </p>
+  </div>
+
+  <div class="flex flex-wrap items-center gap-3">
+    <%= f.submit category.persisted? ? "Salvar" : "Criar categoria",
+          class: ui_button_classes %>
+    <%= link_to "Cancelar", admin_categories_path,
+          class: ui_button_classes(variant: :text) %>
+  </div>
+<% end %>

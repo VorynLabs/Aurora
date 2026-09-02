@@ -13,6 +13,9 @@ Rails.application.routes.draw do
       member { patch :toggle_visibility }
     end
 
+    # Categoria é do catálogo inteiro, não de um admin: sem escopo por dono.
+    resources :categories, except: %i[show]
+
     # Referência visual interna: todos os componentes e cores numa página só.
     get "styleguide", to: "styleguide#index"
   end
