@@ -16,11 +16,6 @@
       <%= vf.label :quantity, "Quantidade", class: ui_label_classes %>
       <%= vf.number_field :quantity, min: 0, class: ui_input_classes(extra: "mt-1") %>
     </div>
-
-    <div class="sm:col-span-2">
-      <%= vf.label :sku, "SKU (opcional)", class: ui_label_classes %>
-      <%= vf.text_field :sku, class: ui_input_classes(extra: "mt-1") %>
-    </div>
   </div>
 
   <%= vf.hidden_field :_destroy %>

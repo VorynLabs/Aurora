@@ -77,7 +77,7 @@ RSpec.describe "Produtos do painel", type: :request do
           description: "Cetim leve",
           category_id: category.id,
           variants_attributes: {
-            "0" => { name: "Preta / P", price_reais: "129,90", quantity: "4", sku: "CAM-P" }
+            "0" => { name: "Preta / P", price_reais: "129,90", quantity: "4" }
           }
         }.merge(overrides)
       }
@@ -92,7 +92,7 @@ RSpec.describe "Produtos do painel", type: :request do
 
       product = Product.last
       expect(product.admin).to eq(admin)
-      expect(product.variants.first).to have_attributes(name: "Preta / P", quantity: 4, sku: "CAM-P")
+      expect(product.variants.first).to have_attributes(name: "Preta / P", quantity: 4)
     end
 
     it "guarda o preço em centavos" do
