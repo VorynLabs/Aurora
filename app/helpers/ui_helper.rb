@@ -45,4 +45,13 @@ module UiHelper
   end
 
   def ui_label_classes = "block text-sm font-medium text-wine-dark"
+
+  # O anexo por trás de um campo de imagem, ou nil quando não há registro
+  # (a styleguide monta o componente com um form sem model).
+  def ui_image_attachment(record, attribute)
+    return nil unless record.respond_to?(attribute)
+
+    attachment = record.public_send(attribute)
+    attachment if attachment.respond_to?(:attached?)
+  end
 end
