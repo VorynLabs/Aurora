@@ -21,6 +21,23 @@ RSpec.describe "Painel de produtos", type: :system do
     JS
   end
 
+  # As células na ordem em que a linha as desenha, da esquerda para a direita —
+  # que não é a ordem do HTML: as md:order movem estoque e variações para antes
+  # do status. Os md:contents também não aparecem entre os filhos do elemento,
+  # então é preciso dissolvê-los aqui.
+  def columns_of(selector)
+    page.evaluate_script(<<~JS)
+      (() => {
+        const cells = (el) => [...el.children].flatMap((child) =>
+          getComputedStyle(child).display === "contents" ? cells(child) : [child]);
+
+        return cells(document.querySelector("#{selector}"))
+          .sort((a, b) => a.getBoundingClientRect().left - b.getBoundingClientRect().left)
+          .map((el) => el.innerText.trim());
+      })()
+    JS
+  end
+
   def article_display
     page.evaluate_script(%(getComputedStyle(document.querySelector("#products article")).display))
   end
@@ -99,35 +116,35 @@ RSpec.describe "Painel de produtos", type: :system do
 
     visit admin_root_path
 
-    # As colunas pedidas pelo protótipo, na ordem.
-    expect(page).to have_content("Produto")
-    expect(page).to have_content("Categoria")
-    expect(page).to have_content("Preço")
-    expect(page).to have_content("Estoque")
-    expect(page).to have_content("Status")
+    # As colunas do protótipo, na ordem: estoque e variações separados, e o
+    # preço anunciado como "a partir" porque é o menor entre as variações.
+    expect(columns_of("#products_header > div")).to eq(
+      ["", "Produto", "Categoria", "Preço a partir", "Estoque", "Variações", "Status", ""]
+    )
 
     row = find("##{ActionView::RecordIdentifier.dom_id(product)}")
 
+    expect(columns_of("#products article")).to eq(
+      ["", "Camisola", "Roupas", "R$ 129,90", "13", "2", "No catálogo", ""]
+    )
     expect(row).to have_selector("[aria-label='Produto sem imagem']")
-    expect(row).to have_content("Camisola")
-    expect(row).to have_content("Roupas")
-    expect(row).to have_content("R$ 129,90")
-    expect(row).to have_content("13 un · 2 variações")
-    expect(row).to have_content("No catálogo")
     expect(row).to have_button("Opções de Camisola")
 
-    # Sete colunas de verdade, alinhadas com as do cabeçalho: é o que separa a
+    # Oito colunas de verdade, alinhadas com as do cabeçalho: é o que separa a
     # tabela de uma pilha de cards.
     expect(row_columns).to eq(header_columns)
-    expect(row_columns.size).to eq(7)
+    expect(row_columns.size).to eq(8)
 
-    # No mobile a tabela some e a linha volta a ser card empilhado.
+    # No mobile a tabela some e a linha volta a ser card empilhado, onde os dois
+    # números se leem juntos porque não há cabeçalho para nomeá-los.
     page.current_window.resize_to(390, 900)
 
     expect(page).to have_no_content("Estoque")
     expect(article_display).to eq("flex")
     expect(row).to have_content("Camisola")
-    expect(row).to have_content("13 un · 2 variações")
+    # normalize_ws porque as duas células são caixas separadas no flex do card:
+    # o que as separa na tela é o gap, e no texto vira quebra de linha.
+    expect(row).to have_content("13 un · 2 variações", normalize_ws: true)
   end
 
   it "troca o card pelo formulário de edição e volta ao salvar" do

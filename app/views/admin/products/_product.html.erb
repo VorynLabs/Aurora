@@ -30,17 +30,29 @@
       </p>
 
       <div class="mt-3 flex flex-wrap items-center gap-2 md:contents">
-        <div class="md:order-2">
+        <div class="md:order-3">
           <%= render "ui/badge", label: status[:label], tone: status[:tone] %>
         </div>
 
-        <span class="text-xs text-clay-text md:order-1">
-          <%= admin_product_stock_summary(product) %>
-        </span>
+        <%# Duas colunas no desktop, cada uma só com o número — quem os nomeia é
+            o cabeçalho. No mobile não há cabeçalho, então as palavras voltam, e
+            este flex mantém os dois na mesma linha: "13 un · 2 variações", como
+            o card sempre mostrou. %>
+        <div class="flex items-center gap-1 md:contents">
+          <span class="text-xs text-clay-text md:order-1 md:text-sm">
+            <%= product.variants.sum(&:quantity) %><span class="md:hidden"> un</span>
+          </span>
+
+          <span class="text-xs text-clay-text md:order-2 md:text-sm">
+            <span class="md:hidden">· </span><%= product.variants.size %><span class="md:hidden">
+              <%= admin_variants_word(product.variants.size) %>
+            </span>
+          </span>
+        </div>
       </div>
     </div>
 
-    <div class="shrink-0 md:order-3">
+    <div class="shrink-0 md:order-4">
       <%= render layout: "ui/dropdown", locals: { label: "Opções de #{product.title}" } do %>
         <%= render "ui/dropdown_item", label: "Editar", url: edit_admin_product_path(product) %>
         <%= render "ui/dropdown_item",

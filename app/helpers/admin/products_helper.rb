@@ -6,7 +6,7 @@ module Admin::ProductsHelper
   # Não é uma <table> de verdade porque <turbo-frame> não sobrevive dentro de
   # <tbody>: o parser joga o elemento para fora da tabela. E é o frame que
   # troca a linha pelo formulário de edição, no lugar.
-  ROW_COLUMNS = "md:grid md:grid-cols-[4rem_minmax(0,2.5fr)_minmax(0,1.2fr)_7rem_9rem_7rem_2.75rem] " \
+  ROW_COLUMNS = "md:grid md:grid-cols-[4rem_minmax(0,2.5fr)_minmax(0,1.2fr)_8rem_5rem_5rem_7rem_2.75rem] " \
                 "md:items-center md:gap-4".freeze
 
   # Card no mobile, linha da tabela no desktop: o md: desmonta o cartão e
@@ -30,12 +30,7 @@ module Admin::ProductsHelper
     { label: "No catálogo", tone: :success }
   end
 
-  # Estoque da coluna: soma das variações e quantas são. Curto porque divide a
-  # linha com outras seis colunas.
-  def admin_product_stock_summary(product)
-    units = product.variants.sum(&:quantity)
-    variants = pluralize(product.variants.size, "variação", plural: "variações")
-
-    "#{units} un · #{variants}"
-  end
+  # Palavra que acompanha o número de variações no card do mobile. No desktop a
+  # coluna tem título próprio e mostra só o número.
+  def admin_variants_word(count) = count == 1 ? "variação" : "variações"
 end
