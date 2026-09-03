@@ -69,14 +69,19 @@ INFINITEPAY_FAKE=true bin/dev
 Com ele ligado, o `InfinitepayClient` não faz nenhuma chamada HTTP:
 
 - `create_link` devolve uma URL para `/dev/fake_checkout?order_nsu=...`, uma página no próprio
-  app que mostra o pedido e traz um botão **Simular pagamento aprovado**;
-- o botão entrega o webhook em `POST /webhooks/infinitepay`, exatamente como a InfinitePay
-  faria — daí para a frente o código é o de produção, sem desvio;
+  app que mostra o pedido e simula os dois desfechos;
+- **Simular pagamento aprovado** processa o mesmo evento que a InfinitePay entregaria — baixa
+  de estoque, pedido pago, `WebhookEvent` registrado — e só depois abre a tela de sucesso em
+  `/checkout/success`. Nessa ordem: a tela não prova pagamento, quem dá baixa é o webhook;
+- **Simular pagamento recusado** não chama webhook nenhum. Volta ao carrinho com o aviso, o
+  pedido segue `pending` e a reserva retorna ao estoque na próxima passada do
+  `ExpireReservationsJob` — o mesmo que acontece com qualquer checkout abandonado;
 - `payment_check` (o double-check do webhook) responde pagamento aprovado no formato do SPEC 04,
   com o valor igual ao total do pedido.
 
 O resto do sistema não sabe que está em modo fake. Reserva, idempotência, lock e baixa de
-estoque rodam iguais.
+estoque rodam iguais, e não há tela de sucesso ou de falha exclusiva do modo fake: são as
+mesmas que o cliente vê em produção.
 
 **Em produção o modo fake nunca liga**, mesmo com `INFINITEPAY_FAKE=true` no ambiente — um
 gateway simulado ali daria pedido pago sem dinheiro entrando. A rota `/dev/fake_checkout`

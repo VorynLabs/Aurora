@@ -1,11 +1,11 @@
 <div class="mx-auto max-w-lg">
-  <%= render "ui/badge", label: "Pagamento simulado", tone: :warning %>
+  <%= render "ui/badge", label: "Ferramenta de desenvolvimento", tone: :warning %>
 
-  <h1 class="mt-3 font-display text-3xl text-wine-ink">Checkout de desenvolvimento</h1>
+  <h1 class="mt-3 font-display text-3xl text-wine-ink">Pagamento simulado</h1>
 
   <p class="mt-2 text-clay-text">
-    A InfinitePay não foi chamada. Esta página existe porque
-    <code>INFINITEPAY_FAKE</code> está ligado.
+    A InfinitePay não foi chamada. Esta página está no lugar do checkout dela porque
+    <code>INFINITEPAY_FAKE</code> está ligado, e não existe em produção.
   </p>
 
   <div class="<%= ui_card_classes(extra: "mt-6 p-5") %>">
@@ -33,20 +33,24 @@
     </ul>
   </div>
 
-  <%# Dispara o mesmo webhook que a InfinitePay dispararia. O double-check do
-      ProcessWebhook cai no payment_check fake, que aprova o valor do pedido. %>
-  <%= form_with url: "/webhooks/infinitepay", method: :post, class: "mt-6" do |f| %>
-    <%= hidden_field_tag :order_nsu, @order.order_nsu %>
-    <%= hidden_field_tag :transaction_nsu, @transaction_nsu %>
-    <%= hidden_field_tag :invoice_slug, "fake-slug" %>
-    <%= hidden_field_tag :amount, @order.total_cents %>
-    <%= hidden_field_tag :paid_amount, @order.total_cents %>
-    <%= hidden_field_tag :capture_method, "pix" %>
+  <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+    <%= button_to "Simular pagamento aprovado",
+          approve_dev_fake_checkout_path(order_nsu: @order.order_nsu),
+          class: ui_button_classes(extra: "w-full sm:w-auto") %>
 
-    <%= f.submit "Simular pagamento aprovado", class: ui_button_classes(extra: "w-full sm:w-auto") %>
-  <% end %>
+    <%= button_to "Simular pagamento recusado",
+          decline_dev_fake_checkout_path(order_nsu: @order.order_nsu),
+          class: ui_button_classes(variant: :secondary, extra: "w-full sm:w-auto") %>
+  </div>
 
-  <p class="mt-3 text-sm text-clay-text">
-    Isso entrega o webhook ao app, que dá baixa no estoque como faria em produção.
-  </p>
+  <ul class="mt-4 space-y-1 text-sm text-clay-text">
+    <li>
+      <strong>Aprovado</strong> entrega o webhook ao app — baixa de estoque e pedido pago —
+      e só então abre a tela de sucesso.
+    </li>
+    <li>
+      <strong>Recusado</strong> não chama webhook nenhum: volta ao carrinho, o pedido segue
+      pendente e a reserva volta ao estoque na próxima passada do job de expiração.
+    </li>
+  </ul>
 </div>
