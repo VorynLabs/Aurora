@@ -25,9 +25,7 @@
 
             <%# Categoria com produtos não some: o model barra, e o controller
                 explica o que fazer. A confirmação é para o caso vazio. %>
-            <%= button_to "Remover", admin_category_path(category), method: :delete,
-                  form: { data: { turbo_confirm: "Remover #{category.name}?" } },
-                  class: ui_button_classes(variant: :text, extra: "text-danger") %>
+            <%= render "admin/categories/destroy_modal", category: category %>
           </div>
         </div>
       </li>

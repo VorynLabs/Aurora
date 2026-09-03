@@ -1,0 +1,28 @@
+<%# locals: category — a confirmação de remoção vive no modal do design system
+    (SPEC 05), não no confirm nativo do navegador. Cada categoria tem o seu, daí
+    o dialog_id próprio: o título se repetiria entre categorias homônimas. %>
+<%= render layout: "ui/modal",
+      locals: {
+        title: "Remover #{category.name}?",
+        dialog_id: "remove-category-#{category.id}",
+        trigger_label: "Remover",
+        trigger_variant: :text,
+        trigger_class: "text-danger"
+      } do %>
+  <p class="text-sm text-clay-text">
+    A categoria sai do painel para sempre. Se ainda houver produtos nela, a
+    remoção é barrada e você segue podendo movê-los para outra categoria.
+  </p>
+
+  <div class="mt-5 flex flex-wrap items-center justify-end gap-3">
+    <button type="button" data-action="modal#close"
+            class="<%= ui_button_classes(variant: :secondary) %>">
+      Cancelar
+    </button>
+
+    <%# Rótulo diferente do gatilho de propósito: os dois botões convivem na
+        mesma página, e "Remover" sozinho ficaria ambíguo. %>
+    <%= button_to "Remover categoria", admin_category_path(category), method: :delete,
+          class: ui_button_classes(variant: :danger) %>
+  </div>
+<% end %>
