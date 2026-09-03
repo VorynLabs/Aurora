@@ -6,6 +6,25 @@ RSpec.describe "Painel de produtos", type: :system do
 
   before { sign_in_as(admin) }
 
+  # A tabela é feita de grid, e não de <table>: nada no HTML mostra as colunas,
+  # só a medida. Cabeçalho e linha precisam bater track a track.
+  def header_columns
+    page.evaluate_script(<<~JS)
+      getComputedStyle(document.querySelector("#products_header > div"))
+        .gridTemplateColumns.split(" ")
+    JS
+  end
+
+  def row_columns
+    page.evaluate_script(<<~JS)
+      getComputedStyle(document.querySelector("#products article")).gridTemplateColumns.split(" ")
+    JS
+  end
+
+  def article_display
+    page.evaluate_script(%(getComputedStyle(document.querySelector("#products article")).display))
+  end
+
   it "abre o formulário de novo produto pelo botão flutuante" do
     expect(page).not_to have_field("Título")
 
@@ -71,6 +90,44 @@ RSpec.describe "Painel de produtos", type: :system do
 
     expect(page).to have_content("impediram de salvar")
     expect(page).to have_selector("dialog[open]")
+  end
+
+  it "lista em tabela com colunas no desktop e em cards no mobile" do
+    product = create(:product, admin: admin, title: "Camisola", category: category,
+                     variant_quantity: 10, variant_price_cents: 12_990)
+    create(:variant, product: product, quantity: 3, price_cents: 19_990)
+
+    visit admin_root_path
+
+    # As colunas pedidas pelo protótipo, na ordem.
+    expect(page).to have_content("Produto")
+    expect(page).to have_content("Categoria")
+    expect(page).to have_content("Preço")
+    expect(page).to have_content("Estoque")
+    expect(page).to have_content("Status")
+
+    row = find("##{ActionView::RecordIdentifier.dom_id(product)}")
+
+    expect(row).to have_selector("[aria-label='Produto sem imagem']")
+    expect(row).to have_content("Camisola")
+    expect(row).to have_content("Roupas")
+    expect(row).to have_content("R$ 129,90")
+    expect(row).to have_content("13 un · 2 variações")
+    expect(row).to have_content("No catálogo")
+    expect(row).to have_button("Opções de Camisola")
+
+    # Sete colunas de verdade, alinhadas com as do cabeçalho: é o que separa a
+    # tabela de uma pilha de cards.
+    expect(row_columns).to eq(header_columns)
+    expect(row_columns.size).to eq(7)
+
+    # No mobile a tabela some e a linha volta a ser card empilhado.
+    page.current_window.resize_to(390, 900)
+
+    expect(page).to have_no_content("Estoque")
+    expect(article_display).to eq("flex")
+    expect(row).to have_content("Camisola")
+    expect(row).to have_content("13 un · 2 variações")
   end
 
   it "troca o card pelo formulário de edição e volta ao salvar" do

@@ -8,7 +8,15 @@
   </p>
 </div>
 
-<div id="products" class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+<%# O cabeçalho das colunas só existe com produto na lista, então tem elemento
+    próprio: os turbo_streams de criação e remoção o mantêm em dia. %>
+<div id="products_header" class="mt-6">
+  <%= render "admin/products/table_header" if @products.any? %>
+</div>
+
+<%# Cards separados no mobile; no desktop as linhas se encostam e as bordas
+    delas desenham a tabela. %>
+<div id="products" class="space-y-3 md:space-y-0">
   <%= render partial: "admin/products/product", collection: @products %>
 </div>
 

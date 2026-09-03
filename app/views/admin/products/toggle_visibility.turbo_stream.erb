@@ -1,4 +1,4 @@
-<%# Só o card muda: o badge passa a dizer o novo estado. %>
+<%# Só a linha muda: o badge passa a dizer o novo estado. %>
 <%= turbo_stream.replace dom_id(@product) do %>
   <%= render "admin/products/product", product: @product %>
 <% end %>

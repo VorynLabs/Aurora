@@ -1,12 +1,18 @@
-<%# Card do painel: mostra tudo, inclusive oculto e sem estoque. O turbo_frame
-    permite trocar só este card por um formulário de edição, no lugar. %>
+<%# Uma linha da tabela no desktop, um card empilhado no mobile — a mesma
+    marcação nos dois. O turbo_frame permite trocar só este produto por um
+    formulário de edição, no lugar.
+
+    Os md:contents dissolvem os agrupamentos do card: no desktop, os textos
+    lá dentro viram células do grid da linha, sem duplicar marcação. As
+    md:order acertam a ordem das colunas (estoque antes do status) sem mexer
+    na ordem do card, onde o badge vem primeiro. %>
 <%= turbo_frame_tag dom_id(product) do %>
   <% status = admin_product_status(product) %>
 
   <%# Sem overflow-hidden: o menu de opções é posicionado por absolute e seria
       cortado pelo card. O recorte da miniatura fica no próprio wrapper dela. %>
-  <article class="<%= ui_card_classes(extra: "relative flex gap-4 p-4") %>">
-    <div class="h-20 w-20 shrink-0 overflow-hidden rounded-control">
+  <article class="<%= admin_product_row_classes %>">
+    <div class="h-20 w-20 shrink-0 overflow-hidden rounded-control md:h-12 md:w-12">
       <% if product.image.attached? %>
         <%= image_tag product.image, alt: product.title, class: "h-full w-full object-cover" %>
       <% else %>
@@ -14,24 +20,27 @@
       <% end %>
     </div>
 
-    <div class="min-w-0 flex-1">
-      <h2 class="truncate font-display text-lg"><%= product.title %></h2>
-      <p class="text-sm text-clay-text"><%= product.category.name %></p>
+    <div class="min-w-0 flex-1 md:contents">
+      <h2 class="min-w-0 truncate font-display text-lg md:text-base"><%= product.title %></h2>
 
-      <p class="mt-1 text-wine">
+      <p class="min-w-0 truncate text-sm text-clay-text"><%= product.category.name %></p>
+
+      <p class="mt-1 text-wine md:mt-0">
         <%= product.variants.min_by(&:price_cents)&.price_brl %>
       </p>
 
-      <div class="mt-3 flex flex-wrap items-center gap-2">
-        <%= render "ui/badge", label: status[:label], tone: status[:tone] %>
-        <span class="text-xs text-clay-text">
-          <%= pluralize(product.variants.sum(&:quantity), "unidade") %>
-          em <%= pluralize(product.variants.size, "variação", plural: "variações") %>
+      <div class="mt-3 flex flex-wrap items-center gap-2 md:contents">
+        <div class="md:order-2">
+          <%= render "ui/badge", label: status[:label], tone: status[:tone] %>
+        </div>
+
+        <span class="text-xs text-clay-text md:order-1">
+          <%= admin_product_stock_summary(product) %>
         </span>
       </div>
     </div>
 
-    <div class="shrink-0">
+    <div class="shrink-0 md:order-3">
       <%= render layout: "ui/dropdown", locals: { label: "Opções de #{product.title}" } do %>
         <%= render "ui/dropdown_item", label: "Editar", url: edit_admin_product_path(product) %>
         <%= render "ui/dropdown_item",

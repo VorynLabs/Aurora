@@ -55,7 +55,7 @@ RSpec.describe "Produtos do painel", type: :request do
 
         get admin_root_path
 
-        expect(response.body).to include("10 unidades", "2 variações")
+        expect(response.body).to include("10 un · 2 variações")
       end
 
       it "convida ao cadastro quando não há produto" do

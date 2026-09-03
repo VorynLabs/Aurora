@@ -8,6 +8,11 @@
   <%= render "admin/products/new_product_modal", product: @new_product %>
 <% end %>
 
+<%# Primeiro produto da lista: o cabeçalho das colunas entra junto. %>
+<%= turbo_stream.update "products_header" do %>
+  <%= render "admin/products/table_header" %>
+<% end %>
+
 <%= turbo_stream.update "products_count" do %>
   <%= render "admin/products/count", count: current_admin.products.count %>
 <% end %>
