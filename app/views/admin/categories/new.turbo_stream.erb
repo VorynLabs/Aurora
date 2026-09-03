@@ -1,0 +1,5 @@
+<%# Validação falhou no modal do formulário de produto: troca só o corpo, com
+    os erros. O <dialog> fica onde está, e o modal continua aberto. %>
+<%= turbo_stream.replace "new_category_form" do %>
+  <%= render "admin/categories/modal_form", category: @category %>
+<% end %>

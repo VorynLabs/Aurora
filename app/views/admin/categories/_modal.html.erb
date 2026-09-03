@@ -1,0 +1,8 @@
+<%# locals: category — o painel de "nova categoria" do formulário de produto.
+    Sem gatilho próprio: quem abre é o botão ao lado do select, que mora dentro
+    do <form> do produto — e um <form> não pode conter outro. Os dois dividem o
+    data-controller="modal" que envolve o formulário. %>
+<%= render layout: "ui/modal_panel",
+      locals: { title: "Nova categoria", dialog_id: "new_category_modal" } do %>
+  <%= render "admin/categories/modal_form", category: category %>
+<% end %>

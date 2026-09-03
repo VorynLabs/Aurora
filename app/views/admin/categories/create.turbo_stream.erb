@@ -1,0 +1,15 @@
+<%# Resposta ao modal aberto do formulário de produto. %>
+<%# O select volta com a categoria nova já escolhida. `fields` monta o mesmo
+    builder do formulário de produto sem abrir outro <form>: os nomes dos
+    campos continuam product[category_id]. %>
+<%= turbo_stream.replace "product_category_field" do %>
+  <%= fields model: Product.new(category: @category) do |f| %>
+    <%= render "admin/products/category_field", f: f %>
+  <% end %>
+<% end %>
+
+<%# Trocar o <dialog> aberto por um limpo fecha o modal e já deixa o formulário
+    em branco para a próxima: sair do DOM tira o elemento do top layer. %>
+<%= turbo_stream.replace "new_category_modal" do %>
+  <%= render "admin/categories/modal", category: Category.new %>
+<% end %>
