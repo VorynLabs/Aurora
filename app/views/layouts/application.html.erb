@@ -1,18 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
   <head>
-    <title>Aurora</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <%= csrf_meta_tags %>
-    <%= csp_meta_tag %>
-    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
-
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
+    <%# Mesmo head das outras telas: é ele que carrega Playfair Display e Inter.
+        Nenhum controller cai aqui hoje, mas o dia em que um cair não pode ser o
+        dia em que a tipografia do SPEC 05 some. %>
+    <%= render "layouts/head", title: "Aurora" %>
   </head>
 
-  <body>
-    <main class="container mx-auto mt-28 px-5 flex">
+  <body class="flex min-h-screen flex-col bg-cream">
+    <main class="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6">
       <%= yield %>
     </main>
   </body>

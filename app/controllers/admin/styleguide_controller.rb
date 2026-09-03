@@ -12,7 +12,8 @@ class Admin::StyleguideController < Admin::BaseController
     { token: "clay-text", hex: "#8A5240", usage: "Texto secundário" },
     { token: "success",   hex: "#3B6D57", usage: "Em estoque, confirmações" },
     { token: "warning",   hex: "#B07A2E", usage: "Últimas unidades" },
-    { token: "danger",    hex: "#8A2D2D", usage: "Erros, esgotado" }
+    { token: "danger",    hex: "#8A2D2D", usage: "Erros, esgotado" },
+    { token: "warning-text", hex: "#85581A", usage: "Âmbar como texto — o cheio reprova o AA" }
   ].freeze
 
   def index

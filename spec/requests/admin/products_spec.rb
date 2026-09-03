@@ -55,7 +55,10 @@ RSpec.describe "Produtos do painel", type: :request do
 
         get admin_root_path
 
-        expect(response.body).to include("10 unidades", "2 variações")
+        # As palavras só aparecem no card do mobile; no desktop as colunas
+        # "Estoque" e "Variações" mostram os números sozinhos.
+        body_text = Capybara.string(response.body).text.gsub(/\s+/, " ")
+        expect(body_text).to include("10 un · 2 variações")
       end
 
       it "convida ao cadastro quando não há produto" do

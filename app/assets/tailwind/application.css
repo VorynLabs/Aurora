@@ -33,6 +33,11 @@
   --color-warning: #b07a2e;
   --color-danger: #8a2d2d;
 
+  /* O âmbar também reprova como cor de texto: 3.32:1 sobre o próprio tom
+     claro. Este é o par escuro dele, só para texto — mesma dupla que a paleta
+     já faz em clay/clay-text. Sobre o fundo do badge dá 5.53:1. */
+  --color-warning-text: #85581a;
+
   /* Serifada carrega a voz premium; sans humanista mantém a UI legível. */
   --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;

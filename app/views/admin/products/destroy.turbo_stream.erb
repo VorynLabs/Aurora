@@ -1,9 +1,13 @@
-<%# O card sai da lista, e o cabeçalho acompanha: contador em dia e, se a lista
-    esvaziou, o convite a cadastrar de volta. %>
+<%# A linha sai da lista, e o topo acompanha: contador em dia e, se a lista
+    esvaziou, as colunas fora e o convite a cadastrar de volta. %>
 <%= turbo_stream.remove dom_id(@product) %>
 
 <%= turbo_stream.update "products_count" do %>
   <%= render "admin/products/count", count: current_admin.products.count %>
+<% end %>
+
+<%= turbo_stream.update "products_header" do %>
+  <%= render "admin/products/table_header" if current_admin.products.any? %>
 <% end %>
 
 <%= turbo_stream.update "products_empty" do %>
