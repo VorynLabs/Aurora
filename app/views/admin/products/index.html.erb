@@ -8,16 +8,19 @@
   </p>
 </div>
 
-<%# O cabeçalho das colunas só existe com produto na lista, então tem elemento
-    próprio: os turbo_streams de criação e remoção o mantêm em dia. %>
-<div id="products_header" class="mt-6">
-  <%= render "admin/products/table_header" if @products.any? %>
-</div>
+<%# No desktop, cabeçalho e linhas dividem uma superfície só, com a borda e o
+    raio dos cards do design system. No mobile a moldura some e sobram os cards
+    empilhados. %>
+<div class="<%= admin_products_table_classes %>">
+  <%# O cabeçalho das colunas só existe com produto na lista, então tem
+      elemento próprio: os turbo_streams de criação e remoção o mantêm em dia. %>
+  <div id="products_header">
+    <%= render "admin/products/table_header" if @products.any? %>
+  </div>
 
-<%# Cards separados no mobile; no desktop as linhas se encostam e as bordas
-    delas desenham a tabela. %>
-<div id="products" class="space-y-3 md:space-y-0">
-  <%= render partial: "admin/products/product", collection: @products %>
+  <div id="products" class="<%= admin_products_body_classes %>">
+    <%= render partial: "admin/products/product", collection: @products %>
+  </div>
 </div>
 
 <div id="products_empty">

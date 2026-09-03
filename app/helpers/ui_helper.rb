@@ -18,13 +18,16 @@ module UiHelper
     danger: "bg-danger text-cream hover:bg-wine-dark"
   }.freeze
 
+  # Pílula de fundo claro com o texto na cor semântica: o badge marca o estado
+  # sem gritar na linha da tabela. Cada par foi medido sobre o branco do card e
+  # sobre o creme da página; o pior caso de cada um passa AA (4.5:1) para texto
+  # pequeno — daí o warning-text no lugar do âmbar cheio, que ficaria em 3.3:1.
   BADGE_TONES = {
-    # Cada par foi medido: todos passam AA (4.5:1) para texto pequeno.
-    neutral: "bg-nude-deep text-wine-ink",
-    success: "bg-success text-cream",
-    warning: "bg-warning text-wine-ink",
-    danger: "bg-danger text-cream",
-    accent: "bg-clay text-wine-ink"
+    neutral: "bg-nude-deep/50 text-clay-text",
+    success: "bg-success/10 text-success",
+    warning: "bg-warning/10 text-warning-text",
+    danger: "bg-danger/10 text-danger",
+    accent: "bg-clay/20 text-wine"
   }.freeze
 
   def ui_button_classes(variant: :primary, extra: nil)
