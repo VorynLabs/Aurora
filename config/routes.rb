@@ -40,6 +40,14 @@ Rails.application.routes.draw do
   # sem sessão. É o único caminho que dá baixa em estoque.
   post "webhooks/infinitepay", to: "webhooks/infinitepay#create"
 
+  # Checkout simulado do modo fake (INFINITEPAY_FAKE). Nunca existe em
+  # produção: a rota sequer é montada lá.
+  unless Rails.env.production?
+    get  "dev/fake_checkout",         to: "dev/fake_checkout#show",    as: :dev_fake_checkout
+    post "dev/fake_checkout/approve", to: "dev/fake_checkout#approve", as: :approve_dev_fake_checkout
+    post "dev/fake_checkout/decline", to: "dev/fake_checkout#decline", as: :decline_dev_fake_checkout
+  end
+
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
