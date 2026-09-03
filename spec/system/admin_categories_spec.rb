@@ -44,14 +44,35 @@ RSpec.describe "Categorias no painel", type: :system do
     expect(page).to have_content("Lingerie")
   end
 
-  it "remove uma categoria vazia" do
+  it "confirma a remoção no modal, e não no alert do navegador" do
     create(:category, name: "Acessórios")
 
     click_link "Categorias"
-    accept_confirm { click_button "Remover" }
+    click_button "Remover"
+
+    # Se ainda fosse o confirm nativo, o clique travaria aqui num diálogo do
+    # navegador e o painel do modal nunca apareceria.
+    expect(page).to have_selector("dialog[open]", text: "Remover Acessórios?")
+
+    within("dialog[open]") { click_button "Remover categoria" }
 
     expect(page).to have_content("Categoria removida.")
     expect(page).to have_content("Nenhuma categoria ainda")
+    expect(Category.count).to eq(0)
+  end
+
+  it "mantém a categoria quando o modal é cancelado" do
+    create(:category, name: "Acessórios")
+
+    click_link "Categorias"
+    click_button "Remover"
+
+    within("dialog[open]") { click_button "Cancelar" }
+
+    expect(page).to have_no_selector("dialog[open]")
+    expect(page).to have_content("Acessórios")
+    expect(page).to have_no_content("Categoria removida.")
+    expect(Category.count).to eq(1)
   end
 
   it "avisa em vez de remover categoria com produtos" do
@@ -59,9 +80,12 @@ RSpec.describe "Categorias no painel", type: :system do
     create(:product, admin: admin, category: category)
 
     click_link "Categorias"
-    accept_confirm { click_button "Remover" }
+    click_button "Remover"
+
+    within("dialog[open]") { click_button "Remover categoria" }
 
     expect(page).to have_content("Mova-os para outra categoria")
     expect(page).to have_content("Roupas")
+    expect(Category.count).to eq(1)
   end
 end

@@ -11,7 +11,11 @@ module UiHelper
   BUTTON_VARIANTS = {
     primary: "bg-wine text-cream hover:bg-wine-dark",
     secondary: "border border-wine bg-transparent text-wine hover:bg-nude",
-    text: "px-2 text-wine underline-offset-4 hover:text-wine-dark hover:underline"
+    text: "px-2 text-wine underline-offset-4 hover:text-wine-dark hover:underline",
+    # Confirmação destrutiva (remover categoria, por exemplo). A paleta não tem
+    # um tom escuro de danger, então o hover cai no wine-dark: mesma família,
+    # mais escuro, e o texto creme continua passando AA sobre os dois.
+    danger: "bg-danger text-cream hover:bg-wine-dark"
   }.freeze
 
   BADGE_TONES = {
