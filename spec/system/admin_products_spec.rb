@@ -38,6 +38,12 @@ RSpec.describe "Painel de produtos", type: :system do
     JS
   end
 
+  def header_background
+    page.evaluate_script(<<~JS)
+      getComputedStyle(document.querySelector("#products_header > div")).backgroundColor
+    JS
+  end
+
   def article_display
     page.evaluate_script(%(getComputedStyle(document.querySelector("#products article")).display))
   end
@@ -129,6 +135,9 @@ RSpec.describe "Painel de produtos", type: :system do
     )
     expect(row).to have_selector("[aria-label='Produto sem imagem']")
     expect(row).to have_button("Opções de Camisola")
+
+    # O cabeçalho vem no nude do SPEC 05, sem transparência por cima.
+    expect(header_background).to eq("rgb(243, 225, 216)")
 
     # Oito colunas de verdade, alinhadas com as do cabeçalho: é o que separa a
     # tabela de uma pilha de cards.

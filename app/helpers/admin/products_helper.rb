@@ -34,7 +34,7 @@ module Admin::ProductsHelper
   end
 
   def admin_products_header_classes
-    "#{ROW_COLUMNS} hidden border-b border-nude-deep bg-nude/40 px-3 py-2 text-sm " \
+    "#{ROW_COLUMNS} hidden border-b border-nude-deep bg-nude px-3 py-2 text-sm " \
       "text-clay-text md:rounded-t-card"
   end
 
