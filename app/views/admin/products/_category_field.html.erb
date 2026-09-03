@@ -1,0 +1,34 @@
+<%# locals: f (form builder do produto). O id é o alvo do turbo_stream que
+    devolve o select com a categoria recém-criada já selecionada. %>
+<div id="product_category_field">
+  <%= f.label :category_id, "Categoria", class: ui_label_classes %>
+
+  <div class="mt-1 flex flex-wrap items-center gap-3">
+    <%# Sem categoria nenhuma, o select seria um beco sem saída: nada para
+        escolher e nada indicando o caminho. %>
+    <% categories = Category.ordered %>
+    <div class="min-w-0 flex-1">
+      <% if categories.any? %>
+        <%= f.collection_select :category_id, categories, :id, :name,
+              { prompt: "Escolha uma categoria" }, class: ui_input_classes %>
+      <% else %>
+        <p class="rounded-control border border-nude-deep bg-nude/40 px-3 py-2 text-sm text-clay-text">
+          Nenhuma categoria cadastrada.
+          <%# turbo_frame "_top": o formulário mora dentro de um turbo_frame no
+              modal, e sem isto a página de categoria seria carregada lá dentro. %>
+          <%= link_to "Crie a primeira", new_admin_category_path,
+                data: { turbo_frame: "_top" },
+                class: "text-wine underline underline-offset-4" %>
+          para poder salvar um produto.
+        </p>
+      <% end %>
+    </div>
+
+    <%# Abre o painel renderizado depois do </form>, no mesmo escopo do
+        controller modal. %>
+    <button type="button" data-action="modal#open" aria-haspopup="dialog"
+            class="<%= ui_button_classes(variant: :secondary) %>">
+      Nova categoria
+    </button>
+  </div>
+</div>

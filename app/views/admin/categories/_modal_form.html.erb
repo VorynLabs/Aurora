@@ -1,0 +1,38 @@
+<%# locals: category — corpo do modal de categoria nova aberto do formulário de
+    produto. Fica num id próprio porque o erro de validação troca só ele: o
+    <dialog> não sai do DOM, então o modal continua aberto. %>
+<div id="new_category_form">
+  <% if category.errors.any? %>
+    <div class="rounded-control border border-danger bg-danger/10 px-4 py-3 text-sm text-danger">
+      <ul class="list-inside list-disc">
+        <% category.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form_with model: [:admin, category], class: "mt-4 space-y-5 first:mt-0" do |f| %>
+    <%# Diz ao controller que a resposta é para este modal, e não para a página
+        de categorias — as duas submissões chegam lá pedindo turbo_stream. %>
+    <%= hidden_field_tag :in_product_form, true %>
+
+    <div>
+      <%= f.label :name, "Nome", class: ui_label_classes %>
+      <%= f.text_field :name, autofocus: true,
+            class: ui_input_classes(invalid: category.errors[:name].any?, extra: "mt-1") %>
+      <p class="mt-1 text-sm text-clay-text">
+        O endereço da categoria no catálogo sai do nome, sozinho.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap items-center justify-end gap-3">
+      <button type="button" data-action="modal#close"
+              class="<%= ui_button_classes(variant: :secondary) %>">
+        Cancelar
+      </button>
+
+      <%= f.submit "Criar categoria", class: ui_button_classes %>
+    </div>
+  <% end %>
+</div>

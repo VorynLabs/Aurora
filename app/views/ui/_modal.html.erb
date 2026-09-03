@@ -1,4 +1,6 @@
-<%# Use com bloco: o conteúdo do bloco vira o corpo do modal.
+<%# Use com bloco: o conteúdo do bloco vira o corpo do modal. Gatilho e painel
+    juntos; quando o gatilho precisa ficar longe do <dialog>, renderize
+    "ui/modal_panel" direto, dentro do seu próprio data-controller="modal".
     locals: title, trigger_label, trigger_variant (padrão :primary),
             trigger_class (classes extras) ou trigger_classes (substitui todas,
             para gatilhos que não são botão comum — o flutuante, por exemplo),
@@ -15,29 +17,7 @@
     <%= trigger_label %>
   </button>
 
-  <dialog data-modal-target="dialog"
-          data-action="click->modal#closeOnBackdrop"
-          id="<%= dialog_id %>"
-          aria-labelledby="<%= dialog_id %>-title"
-          <%# m-auto centraliza: o <dialog> modal nasce com inset 0 e conta com o
-              margin auto do user-agent para se centrar, e o preflight do
-              Tailwind zera margem em tudo — sem isto ele encosta no canto. %>
-          class="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-card border border-nude-deep
-                 bg-white p-0 text-wine-ink backdrop:bg-wine-ink/50">
-    <header class="flex items-center justify-between gap-4 border-b border-nude-deep px-5 py-4">
-      <h2 id="<%= dialog_id %>-title" class="text-lg"><%= title %></h2>
-
-      <button type="button" data-action="modal#close" aria-label="Fechar"
-              class="inline-flex h-11 w-11 items-center justify-center rounded-control text-clay-text hover:bg-nude">
-        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="1.5" aria-hidden="true">
-          <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" />
-        </svg>
-      </button>
-    </header>
-
-    <div class="px-5 py-5">
-      <%= yield %>
-    </div>
-  </dialog>
+  <%= render layout: "ui/modal_panel", locals: { title: title, dialog_id: dialog_id } do %>
+    <%= yield %>
+  <% end %>
 </div>

@@ -9,10 +9,16 @@ class Admin::CategoriesController < Admin::BaseController
     @category = Category.new
   end
 
+  # Dois caminhos, uma criação só: a página de categorias sai daqui com
+  # redirect, e o modal do formulário de produto fica onde está. Quem decide é
+  # o campo escondido do modal, não o Accept — o Turbo pede turbo_stream nas
+  # duas submissões, então negociar por formato atenderia a página errada.
   def create
     @category = Category.new(category_params)
 
-    if @category.save
+    if params[:in_product_form]
+      create_from_product_form
+    elsif @category.save
       redirect_to admin_categories_path, notice: "Categoria criada."
     else
       render :new, status: :unprocessable_entity
@@ -48,6 +54,17 @@ class Admin::CategoriesController < Admin::BaseController
   end
 
   private
+
+  # Sem sair da tela: devolve o select com a categoria nova já selecionada, ou
+  # só o corpo do modal com os erros — o <dialog> não é tocado, então continua
+  # aberto com o que o admin digitou.
+  def create_from_product_form
+    if @category.save
+      render :create, formats: :turbo_stream
+    else
+      render :new, formats: :turbo_stream, status: :unprocessable_entity
+    end
+  end
 
   # Só o nome: o slug sai dele no model (SPEC 01), e deixar o admin editar os
   # dois abriria caminho para slug que não combina com nome nenhum.
