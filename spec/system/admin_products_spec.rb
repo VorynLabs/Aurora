@@ -156,6 +156,63 @@ RSpec.describe "Painel de produtos", type: :system do
     expect(row).to have_content("13 un · 2 variações", normalize_ws: true)
   end
 
+  it "busca conforme o admin digita, sem recarregar a página" do
+    create(:product, admin: admin, title: "Camisola de cetim", category: category)
+    create(:product, admin: admin, title: "Cinta-liga", category: category)
+
+    visit admin_root_path
+
+    page.execute_script("window.semReload = true")
+
+    fill_in "Buscar produtos", with: "camisola"
+
+    within "#products" do
+      expect(page).to have_content("Camisola de cetim")
+      expect(page).to have_no_content("Cinta-liga")
+    end
+
+    expect(page.evaluate_script("window.semReload")).to be(true)
+
+    # O campo vive fora do frame trocado, então o cursor continua nele e dá
+    # para seguir digitando.
+    expect(page.evaluate_script("document.activeElement.id")).to eq("admin-products-search")
+
+    # A URL acompanha, para recarregar e voltar caírem no mesmo resultado.
+    expect(page).to have_current_path(admin_root_path(q: "camisola"))
+  end
+
+  it "avisa quando a busca não encontra nada e volta ao limpar o campo" do
+    create(:product, admin: admin, title: "Camisola de cetim", category: category)
+
+    visit admin_root_path
+
+    fill_in "Buscar produtos", with: "guarda-chuva"
+
+    expect(page).to have_content("Nada encontrado para")
+    expect(page).to have_no_content("Camisola de cetim")
+
+    fill_in "Buscar produtos", with: ""
+
+    expect(page).to have_content("Camisola de cetim")
+    expect(page).to have_no_content("Nada encontrado para")
+  end
+
+  it "busca também no mobile, onde a lista é de cards" do
+    create(:product, admin: admin, title: "Camisola de cetim", category: category)
+    create(:product, admin: admin, title: "Cinta-liga", category: category)
+
+    visit admin_root_path
+    page.current_window.resize_to(390, 900)
+
+    fill_in "Buscar produtos", with: "cinta"
+
+    expect(article_display).to eq("flex")
+    within "#products" do
+      expect(page).to have_content("Cinta-liga")
+      expect(page).to have_no_content("Camisola de cetim")
+    end
+  end
+
   it "troca o card pelo formulário de edição e volta ao salvar" do
     product = create(:product, admin: admin, title: "Nome antigo", category: category)
 

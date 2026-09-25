@@ -27,6 +27,18 @@ class Product < ApplicationRecord
     !hidden_by_admin && variants.any? { |v| v.available_stock >= 1 }
   end
 
+  # Busca por texto livre no título e na descrição. Mora no modelo porque o
+  # catálogo e o painel buscam do mesmo jeito — e o escape do LIKE precisa
+  # viver num lugar só.
+  #
+  # sanitize_sql_like escapa % e _ digitados por quem busca: sem isso, um
+  # único % vira curinga e devolve a lista inteira.
+  def self.matching(query)
+    pattern = "%#{sanitize_sql_like(query.to_s.strip)}%"
+
+    where("title ILIKE :q OR description ILIKE :q", q: pattern)
+  end
+
   def min_price_cents = variants.available.minimum(:price_cents) || variants.minimum(:price_cents)
 
   private

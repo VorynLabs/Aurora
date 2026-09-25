@@ -2,29 +2,48 @@
   <h1 class="text-2xl">Produtos</h1>
 
   <%# Contador e estado vazio ficam em elementos próprios para os turbo_streams
-      de criação e remoção poderem mantê-los em dia. %>
+      de criação e remoção poderem mantê-los em dia. O contador conta o painel
+      inteiro, então fica fora do frame que a busca troca. %>
   <p id="products_count" class="text-sm text-clay-text">
-    <%= render "admin/products/count", count: @products.size %>
+    <%= render "admin/products/count", count: @products_count %>
   </p>
 </div>
 
-<%# No desktop, cabeçalho e linhas dividem uma superfície só, com a borda e o
-    raio dos cards do design system. No mobile a moldura some e sobram os cards
-    empilhados. %>
-<div class="<%= admin_products_table_classes %>">
-  <%# O cabeçalho das colunas só existe com produto na lista, então tem
-      elemento próprio: os turbo_streams de criação e remoção o mantêm em dia. %>
-  <div id="products_header">
-    <%= render "admin/products/table_header" if @products.any? %>
+<%# A busca fica fora do frame: assim o campo não é redesenhado a cada resposta
+    e o cursor permanece onde está. Vale para os dois layouts — o campo mora
+    acima da listagem, que vira tabela no desktop e cards no mobile. %>
+<%= form_with url: admin_root_path, method: :get, role: "search", class: "mt-6",
+      data: { turbo_frame: "admin_products", controller: "auto-submit",
+              auto_submit_delay_value: 300, action: "input->auto-submit#submit" } do %>
+  <label for="admin-products-search" class="sr-only">Buscar produtos</label>
+
+  <%= search_field_tag :q, @query, id: "admin-products-search",
+        placeholder: "Buscar produtos...", autocomplete: "off",
+        class: ui_input_classes(extra: "sm:max-w-sm") %>
+<% end %>
+
+<%# turbo_action: advance mantém a URL e o botão voltar em dia com o termo
+    buscado. Os turbo_streams de criação e remoção miram os ids lá dentro, que
+    seguem os mesmos. %>
+<%= turbo_frame_tag "admin_products", data: { turbo_action: "advance" } do %>
+  <%# No desktop, cabeçalho e linhas dividem uma superfície só, com a borda e o
+      raio dos cards do design system. No mobile a moldura some e sobram os cards
+      empilhados. %>
+  <div class="<%= admin_products_table_classes %>">
+    <%# O cabeçalho das colunas só existe com produto na lista, então tem
+        elemento próprio: os turbo_streams de criação e remoção o mantêm em dia. %>
+    <div id="products_header">
+      <%= render "admin/products/table_header" if @products.any? %>
+    </div>
+
+    <div id="products" class="<%= admin_products_body_classes %>">
+      <%= render partial: "admin/products/product", collection: @products %>
+    </div>
   </div>
 
-  <div id="products" class="<%= admin_products_body_classes %>">
-    <%= render partial: "admin/products/product", collection: @products %>
+  <div id="products_empty">
+    <%= render "admin/products/empty_state", query: @query if @products.empty? %>
   </div>
-</div>
-
-<div id="products_empty">
-  <%= render "admin/products/empty_state" if @products.empty? %>
-</div>
+<% end %>
 
 <%= render "admin/products/new_product_modal", product: @new_product %>

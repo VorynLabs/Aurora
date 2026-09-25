@@ -1,8 +1,15 @@
 class Admin::ProductsController < Admin::BaseController
   def index
+    @query = params[:q].to_s.strip
     @products = current_admin.products
                              .includes(:variants, :category, image_attachment: :blob)
                              .order(:title)
+    @products = @products.matching(@query) if @query.present?
+
+    # O contador fala do painel inteiro, e não do resultado da busca: é o
+    # mesmo número que os turbo_streams de criação e remoção mantêm em dia, e
+    # ele vive fora do frame que a busca troca.
+    @products_count = current_admin.products.count
     @new_product = build_product
   end
 

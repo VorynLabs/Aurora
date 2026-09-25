@@ -1,3 +1,11 @@
+<%# locals: query (opcional — o termo buscado, quando a lista veio vazia por
+    causa da busca e não por falta de cadastro) %>
+<% query = local_assigns[:query] %>
+
 <p class="mt-6 text-clay-text">
-  Nenhum produto ainda — cadastre o primeiro.
+  <% if query.present? %>
+    Nada encontrado para “<%= query %>”. Tente outra palavra.
+  <% else %>
+    Nenhum produto ainda — cadastre o primeiro.
+  <% end %>
 </p>
