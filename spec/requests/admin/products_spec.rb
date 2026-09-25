@@ -66,6 +66,112 @@ RSpec.describe "Produtos do painel", type: :request do
 
         expect(response.body).to include("Nenhum produto ainda")
       end
+
+      describe "busca" do
+        before do
+          create(:product, admin: admin, title: "Camisola de cetim", description: "Alça fina")
+          create(:product, admin: admin, title: "Cinta-liga", description: "Renda francesa")
+        end
+
+        it "mostra o campo de busca no topo da listagem" do
+          get admin_root_path
+
+          expect(response.body).to include("Buscar produtos")
+          expect(response.body).to include(%(type="search"))
+          expect(response.body).to include(%(name="q"))
+        end
+
+        it "entrega o resultado no frame da listagem, sem recarregar a página" do
+          get admin_root_path
+
+          expect(response.body).to include(%(data-turbo-frame="admin_products"))
+          expect(response.body).to include(%(id="admin_products"))
+          expect(response.body).to include(%(data-turbo-action="advance"))
+        end
+
+        it "filtra pelo título, ignorando maiúsculas" do
+          get admin_root_path(q: "camisola")
+
+          expect(response.body).to include("Camisola de cetim")
+          expect(response.body).not_to include("Cinta-liga")
+        end
+
+        it "filtra pela descrição" do
+          get admin_root_path(q: "renda")
+
+          expect(response.body).to include("Cinta-liga")
+          expect(response.body).not_to include("Camisola de cetim")
+        end
+
+        it "filtra por pedaço de palavra" do
+          get admin_root_path(q: "misol")
+
+          expect(response.body).to include("Camisola de cetim")
+          expect(response.body).not_to include("Cinta-liga")
+        end
+
+        it "busca também no que está fora do catálogo" do
+          create(:product, admin: admin, title: "Camisola oculta", hidden_by_admin: true)
+          create(:product, admin: admin, title: "Camisola zerada", variant_quantity: 0)
+
+          get admin_root_path(q: "camisola")
+
+          expect(response.body).to include("Camisola oculta", "Camisola zerada")
+        end
+
+        it "não alcança produto de outro admin" do
+          create(:product, admin: create(:admin), title: "Camisola de outra loja")
+
+          get admin_root_path(q: "camisola")
+
+          expect(response.body).to include("Camisola de cetim")
+          expect(response.body).not_to include("Camisola de outra loja")
+        end
+
+        it "trata % como texto, não como curinga" do
+          create(:product, admin: admin, title: "Camisola 100% seda")
+
+          get admin_root_path(q: "%")
+
+          expect(response.body).to include("Camisola 100% seda")
+          expect(response.body).not_to include("Cinta-liga")
+        end
+
+        it "trata _ como texto, não como curinga" do
+          create(:product, admin: admin, title: "Kit_promocional")
+
+          get admin_root_path(q: "_")
+
+          expect(response.body).to include("Kit_promocional")
+          expect(response.body).not_to include("Cinta-liga")
+        end
+
+        it "mantém o termo no campo depois de buscar" do
+          get admin_root_path(q: "camisola")
+
+          expect(response.body).to include(%(value="camisola"))
+        end
+
+        it "tira o cabeçalho das colunas quando a busca não casa com nada" do
+          get admin_root_path(q: "guarda-chuva")
+
+          expect(response.body).to include("Nada encontrado para")
+          expect(response.body).not_to include("Preço a partir")
+        end
+
+        it "conta o painel inteiro, e não o resultado da busca" do
+          get admin_root_path(q: "camisola")
+
+          expect(response.body).to include("2 produtos no painel")
+        end
+
+        it "ignora um termo só de espaços" do
+          get admin_root_path(q: "   ")
+
+          expect(response.body).to include("Camisola de cetim", "Cinta-liga")
+          expect(response.body).not_to include("Nada encontrado para")
+        end
+      end
     end
   end
 
