@@ -48,6 +48,33 @@ RSpec.describe "Painel de produtos", type: :system do
     page.evaluate_script(%(getComputedStyle(document.querySelector("#products article")).display))
   end
 
+  # A caixa de um elemento na tela, para dizer se duas peças dividem uma linha
+  # ou se empilharam. symbolize_keys porque o evaluate_script devolve o objeto
+  # do JS com as chaves em string.
+  def box(selector)
+    page.evaluate_script(<<~JS).symbolize_keys
+      (() => {
+        const r = document.querySelector("#{selector}").getBoundingClientRect();
+        return { top: r.top, bottom: r.bottom, left: r.left, right: r.right,
+                 middle: r.top + r.height / 2 };
+      })()
+    JS
+  end
+
+  # A caixa por dentro do padding. O <main> tem px-4, então é contra estas
+  # bordas que um filho de largura cheia se mede — não contra as de fora.
+  def content_box(selector)
+    page.evaluate_script(<<~JS).symbolize_keys
+      (() => {
+        const el = document.querySelector("#{selector}");
+        const r = el.getBoundingClientRect();
+        const s = getComputedStyle(el);
+        return { left: r.left + parseFloat(s.paddingLeft),
+                 right: r.right - parseFloat(s.paddingRight) };
+      })()
+    JS
+  end
+
   it "abre o formulário de novo produto pelo botão flutuante" do
     expect(page).not_to have_field("Título")
 
@@ -154,6 +181,54 @@ RSpec.describe "Painel de produtos", type: :system do
     # normalize_ws porque as duas células são caixas separadas no flex do card:
     # o que as separa na tela é o gap, e no texto vira quebra de linha.
     expect(row).to have_content("13 un · 2 variações", normalize_ws: true)
+  end
+
+  it "alinha título, contador e busca na mesma linha no desktop" do
+    create(:product, admin: admin, title: "Camisola de cetim", category: category)
+
+    # Um exemplo anterior encolhe a janela e não a devolve, então este fixa a
+    # largura que quer medir em vez de herdar a que sobrou.
+    page.current_window.resize_to(1400, 1400)
+    visit admin_root_path
+
+    title = box("h1")
+    count = box("#products_count")
+    search = box("#admin-products-search")
+
+    # Mesma linha: os três centros verticais coincidem (1px de folga para o
+    # arredondamento do layout).
+    expect(count[:middle]).to be_within(1).of(title[:middle])
+    expect(search[:middle]).to be_within(1).of(title[:middle])
+
+    # Título à esquerda, contador e busca à direita — e nessa ordem.
+    expect(title[:left]).to be < count[:left]
+    expect(count[:right]).to be <= search[:left]
+
+    # A busca encosta na borda direita do <main>, que é o justify-between
+    # empurrando o grupo para lá.
+    expect(search[:right]).to be_within(30).of(content_box("main")[:right])
+  end
+
+  it "empilha o cabeçalho no mobile, com a busca abaixo do título" do
+    create(:product, admin: admin, title: "Camisola de cetim", category: category)
+
+    visit admin_root_path
+    page.current_window.resize_to(390, 900)
+
+    title = box("h1")
+    search = box("#admin-products-search")
+
+    # Empilhado, e não espremido ao lado do título.
+    expect(search[:top]).to be >= title[:bottom]
+
+    # Largura cheia, sem estourar o <main>: é o que mantém o layout inteiro no
+    # mobile, onde a listagem vira cards.
+    main = content_box("main")
+    expect(search[:left]).to be_within(1).of(main[:left])
+    expect(search[:right]).to be_within(1).of(main[:right])
+
+    # E nada de barra de rolagem horizontal na página.
+    expect(page.evaluate_script("document.documentElement.scrollWidth")).to be <= 390
   end
 
   it "busca conforme o admin digita, sem recarregar a página" do
